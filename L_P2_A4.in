@@ -1,0 +1,26 @@
+//prueba la formacion de expresiones
+proceso mi_proceso2
+    definir a1 como real;
+    a1 <- 20*3-12*1.43+37*90-88;
+    a1 <- a1*b1*c1*e1-12+a2+43;
+    a1 <- t5*t1*t2*t3*t4(3);
+    a1 <- f1(1)*f1(2)*f1(3)*f1(4)*f1(5);
+    a1 <- 1*2*3*4*5*6*7;
+    
+    a2 <- 1 mod 2;
+    a1 <- 1^2 mod 29;
+
+    b1 <- 2^577712 mod 38812;
+    b1 <- 2^577712 % 38812;
+                      b1 <- 2^577712 - 38812;
+     b1 <- 2^577712 % 38812
+     
+     
+     
+     ;
+     
+     
+     j1 [0,0] <- 20*34;
+     //Si los tipos son correctos o no, es asunto del analisis semantico
+     a2[0,0] <- 2^577712 % 38812 & verdadero | falso + hola;
+finproceso

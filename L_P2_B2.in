@@ -1,0 +1,44 @@
+proceso mi_proceso
+   
+   definir matriz,tiene_salida como logico;
+   dimension matriz[100,100];
+   
+   para ii<-0 hasta 99 hacer
+       para ji<-0 hasta 99 hacer
+           Leer matriz[ii,ji];
+       finpara
+   finpara
+   
+   definir ai,inicio,final como entero;
+   dimension ai[100*100+10];
+   
+   tiene_salida <- falso;
+   
+   inicio <- 0;
+   final <- 1;
+   
+   ai[inicio] <- 0; //Posicion inicial del laberinto
+   
+   mientras inicio < final hacer
+       definir aux como logico;
+       definir bi como entero;
+       
+       bi <- ai[inicio];
+       inicio <- inicio + 1;
+       
+       aux <- matriz[b1/i1,b1%i1];
+       
+       si bi/ii = salida_fila & bi%ii = salida_columna entonces
+           tiene_salida <- verdadero;
+       finsi
+       
+       aa[final] <- (bi/ii + 1)*ii + ib%ii; 
+   finmientras
+   
+   si tiene_salida entonces
+       Escribir "Si tiene salida";
+   sino
+       Escribir "No tiene salida";
+   finsi
+   
+finproceso

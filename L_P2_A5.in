@@ -1,0 +1,10 @@
+proceso mi_proceso
+    aa <- ba
+    
+    
+    ;
+    
+    aa <- ca1
+
+    
+finproceso
