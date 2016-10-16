@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.tree.*;
 public class Interpreter {
 
 	public static void main(String[] args) throws Exception {
-		int can_numeros = 2;
+		int can_numeros = 1;
 		//for (can_numeros = 1; can_numeros <= 5; can_numeros++){
 			String letter = "C";
 			String name = "L_P2_"+ letter+ can_numeros + ".in";

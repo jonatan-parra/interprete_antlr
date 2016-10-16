@@ -112,4 +112,10 @@ public interface MyLanguageVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBooleanExpr(MyLanguageParser.BooleanExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MyLanguageParser#segun1}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSegun1(MyLanguageParser.Segun1Context ctx);
 }

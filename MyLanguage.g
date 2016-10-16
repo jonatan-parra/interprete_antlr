@@ -1,14 +1,15 @@
 grammar MyLanguage;		
 
-commands 	: subproceso1 proceso1 subproceso1
-			| EOF
-			|
+commands 	: subproceso1 //proceso1 subproceso1
+//			| EOF
+	//		|
 			;
 
 subproceso1	: SUBPROCESO ID instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
-			| SUBPROCESO ID ASIGNACION ID PAR_IZQ (ID)* PAR_DER instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
-			| EOF  // Esta linea  la puse para que no me marcara error,
-			| 
+			| SUBPROCESO ID ASIGNACION ID (PAR_IZQ ID* PAR_DER)* instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
+		//	|  // Funcion que no recibe parametros
+	//		| EOF  // Esta linea  la puse para que no me marcara error,
+			| proceso1 
 			;
 	
 proceso1	: (PROCESO|ALGORITMO) ID instrucciones* (FINPROCESO|FINALGORITMO)
@@ -24,17 +25,20 @@ instrucciones 	: definicion
 			| ciclo_para
 			| ciclo_mientras
 			| condicional
+			| segun1
+			| ID PAR_IZQ expr PAR_DER SMCOLON // Una funcion que es llamada pero no se guarda su valor de retorno
 			;
 
 definicion  : DEFINIR varios_id COMO VAR SMCOLON;
 
 varios_id   : ID COMMA varios_id  // Esta gramatica se usa para definir varias variables a la  vez
-			| ID
+			| ID 
 			;
 			
 asignacion1 : ID ASIGNACION ID SMCOLON
 			| ID ASIGNACION expr SMCOLON // Asignacion de funciones
 			| ID COR_IZQ expr COR_DER ASIGNACION expr SMCOLON
+			| ID ASIGNACION MENSAJE SMCOLON// Se asigna una cadena ans <- "Hola";
 			;
 
 escribir	: ESCRIBIR expr SMCOLON
@@ -95,7 +99,9 @@ condicional : SI booleanExpr ENTONCES instrucciones* (SINO instrucciones*)? FINS
 booleanExpr : expr ROP booleanExpr
 			| expr
 			;
-    
+ 
+segun1 		: SEGUN expr HACER (CASO expr DOS_PUNTOS instrucciones*)* (DE OTRO MODO DOS_PUNTOS instrucciones*)? FINSEGUN;      
+ 
  
     
 // Seccion de palabras reservadas
@@ -130,6 +136,11 @@ SUBPROCESO: S U B P R O C E S O;
 FINSUBPROCESO : F I N S U B P R O C E S O; 
 HASTA	: H A S T A;
 FINFUNCION : F I N F U N C I O N;
+CASO : C A S O;
+DE:  D E;
+OTRO: O T R O;
+MODO: M O D O;
+
 // MOD : M O D;
 
 COMMENT 		: '/*' .*? '*/' -> skip ;
@@ -188,7 +199,7 @@ POTENCIA : '^';
 ASIGNACION : '<-';
 NEGACION : '~';
 ROP   	 :  ( '=' | '<>' | '<' | '>' | '<=' | '>=' | '&' | '|');
-SEPARADORES : ( ':' );  
+DOS_PUNTOS : ( ':' );  
 SMCOLON : ';' ;  
 COMMA: ',';
 REAL   : [0-9]+( | [.][0-9]+);

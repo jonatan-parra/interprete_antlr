@@ -1,3 +1,6 @@
+subproceso x1 <- mi_subproceso(aa)
+    xa <- aa*3;
+finfuncion
 
 
 proceso mi_proceso
@@ -14,7 +17,7 @@ proceso mi_proceso
         caso ca:
              Escribir ca;
              ca <- mi_subproceso(2);
-             ba <- c*mi_subproceso(3);
+             ba <- ca*mi_subproceso(3);
              mi_subproceso(ba*ca);
         caso mi_subproceso(2):
              Escribir "6";
@@ -24,6 +27,3 @@ proceso mi_proceso
 
 finproceso
 
-subproceso x <- mi_subproceso(a)
-    x <- a*3;
-finfuncion

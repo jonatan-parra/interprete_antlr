@@ -177,4 +177,14 @@ public interface MyLanguageListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBooleanExpr(MyLanguageParser.BooleanExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MyLanguageParser#segun1}.
+	 * @param ctx the parse tree
+	 */
+	void enterSegun1(MyLanguageParser.Segun1Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link MyLanguageParser#segun1}.
+	 * @param ctx the parse tree
+	 */
+	void exitSegun1(MyLanguageParser.Segun1Context ctx);
 }
