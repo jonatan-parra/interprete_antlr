@@ -1,13 +1,10 @@
-subproceso xa <- mi_subproceso(aa)
-    x <- aa*3;
-finfuncion
 
 
 proceso mi_proceso
     definir aa,ba,ca como entero;
-    Leer aa;
+    Leer a1;
 
-    segun a hacer
+    segun a1 hacer
         caso ba:
              Escribir "ba";
              ba <- 2;
@@ -26,3 +23,7 @@ proceso mi_proceso
     finsegun
 
 finproceso
+
+subproceso x <- mi_subproceso(a)
+    x <- a*3;
+finfuncion

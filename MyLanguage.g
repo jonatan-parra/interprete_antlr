@@ -5,7 +5,8 @@ commands 	: subproceso1 proceso1 subproceso1
 			|
 			;
 
-subproceso1	: SUBPROCESO ID instrucciones* FINSUBPROCESO subproceso1
+subproceso1	: SUBPROCESO ID instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
+			| SUBPROCESO ID ASIGNACION ID PAR_IZQ (ID)* PAR_DER instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
 			| EOF  // Esta linea  la puse para que no me marcara error,
 			| 
 			;
@@ -67,9 +68,10 @@ expr 		:   expr MULOP expr
 		    |	expr POTENCIA expr
 		    |	expr MODOP expr
 		    |	expr MODULO expr
-		//    |   expr AMPERSAND expr
+		    |   expr ('&'|'|') expr
 		//    |  	expr OR_OP expr
-		    |   expr ROP expr  // a*1 = b+2
+		//    |   expr ROP expr  // a*1 = b+2
+				
 		    |	REAL
 		    |   ENTERO
 		    |   VERDADERO
@@ -127,6 +129,7 @@ RESERVADAS: (SI | SINO | FALSO);
 SUBPROCESO: S U B P R O C E S O;
 FINSUBPROCESO : F I N S U B P R O C E S O; 
 HASTA	: H A S T A;
+FINFUNCION : F I N F U N C I O N;
 // MOD : M O D;
 
 COMMENT 		: '/*' .*? '*/' -> skip ;
@@ -191,7 +194,7 @@ COMMA: ',';
 REAL   : [0-9]+( | [.][0-9]+);
 ENTERO : [0-9]+;
 ID    	 : [a-zA-Z][a-zA-Z0-9_]*;
-CONTENIDO_IMPRIMIBLE : ( S I | [a-zA-Z0-9_])+;
+//CONTENIDO_IMPRIMIBLE : ( S I | [a-zA-Z0-9_])+;
 MENSAJE : '"' .*? '"';
 // COMMENT 		: '"' .*? '"';
 
