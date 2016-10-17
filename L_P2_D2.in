@@ -3,11 +3,11 @@
 Proceso Matematicas
 
    Definir EligeSalir,EsPrimo Como Logico;
-   Definir N,Nu,Op,f,r Como Numero;
+   Definir Na,Nu,Op,fa,ra Como Numero;
 
    EligeSalir<-Falso;
    Escribir 'Ingresar Numero:';
-   Leer N;
+   Leer Na;
    Repetir
       Escribir ' ';
       Escribir 'Presione una tecla para continuar';
@@ -28,79 +28,80 @@ Proceso Matematicas
       Leer Op;
       Segun Op Hacer
          caso 1: 
-            Escribir 'Seno:',Sen(N);
-            Escribir 'Coseno:',Cos(N);
-            Escribir 'ArcTangente:',Atan(N);
+            Escribir 'Seno:',Sen(N1);
+            Escribir 'Coseno:',Cos(N1);
+            Escribir 'ArcTangente:',Atan(N1);
          caso 2: 
-            Si N<=0
+            Si N1<=0
                Entonces Escribir 'El numero debe ser mayor a cero!';
                Sino
-                  Escribir 'Log Nat.:',ln(N);
-                  Escribir 'Func Expon.:',exp(N);
+                  Escribir 'Log Nat.:',ln(N1);
+                  Escribir 'Func Expon.:',exp(N1);
             FinSi
          caso 3: 
-            Escribir 'Turncar:',trunc(N);
-            Escribir 'Redondear:',redon(N);
-         caso 4: Escribir 'Raiz Cuad.:',rc(N);
-         caso 5: Escribir 'Valor Abs.:',abs(N);
+            Escribir 'Turncar:',trunc(N1);
+            Escribir 'Redondear:',redon(N1);
+         caso 4: Escribir 'Raiz Cuad.:',rc(N1);
+         caso 5: Escribir 'Valor Abs.:',abs(N1);
          caso 6: 
-            Escribir 'Parte Entera:',Trunc(n);
-            Escribir 'Parte Decimal:',n-Trunc(n);
+            Escribir 'Parte Entera:',Trunc(n1);
+            Escribir 'Parte Decimal:',na-Trunc(n1);
          caso 7: 
-            Si N<>Trunc(N)
+            Si Na<>Trunc(aN)
                Entonces
                   Escribir 'El numero debe ser entero!';
                Sino
-                  Si abs(N)>50
+                  Si abs(Na)>50
                      Entonces Escribir 'Resultado muy grande!';
                      Sino
-                        r<-1; f<-1;
-                        Mientras f<=abs(N) Hacer
-                           Si N<0 
-                              Entonces r<-(-f)*r;
-                                    Sino r<-f*r;
+                        ra<-1; fa<-1;
+                        Mientras fa<=abs(Na) Hacer
+                           Si Na<0 
+                              Entonces ra<-(-fa)*ra;
+                                    Sino ra<-fa*ra;
                            FinSi
-                           f<-f+1;
+                           fa<-fa+1;
                         FinMientras
-                        Escribir 'Factorial:',r;
+                        Escribir 'Factorial:',ra;
                   FinSi
             FinSi
          caso 8: 
-            Si N<>Trunc(N) Entonces
+            Si Na<>Trunc(Na) Entonces
                Escribir 'El numero debe ser entero!';
             Sino
-               Si N<0  entonces 
-                  Nu<-N*(-1);
+               Si Na<0  entonces 
+                  Nu<-Na*(-1);
                sino
-                  Nu<-N;
+                  Nu<-Na;
                FinSi
-               Si N/2=trunc(Nu/2) Entonces 
+               Si Na/2=trunc(Nu/2) Entonces 
                   Escribir 'Numero Primo:',Nu=2;
                   Si Nu<>2 Entonces
-                     Escribir N,'=2x',N/2;
+                     Escribir Na,'=2x',Na/2;
                   FinSi
                Sino
                   EsPrimo<-Nu<>1; 
                   Nu<-RC(Nu);
-                  f<-3;
-                  Mientras f<=Nu Y EsPrimo Hacer
-                     Si N/F=trunc(N/F) Entonces 
+                  fa<-3;
+                  Mientras fa<=Nu Y EsPrimo Hacer
+                     Si Na/Fa=trunc(Na/afa) Entonces 
                         EsPrimo<-Falso;
                      FinSi
-                     f<-f+2;
+                     fa<-fa+2;
                   FinMientras
                   Escribir 'Numero Primo:',EsPrimo;
-                  Si N>1 Y NO EsPrimo Entonces 
-                     Escribir N,'=',f-2,'x',N/(f-2);
+                  Si Na>1 Y NO EsPrimo Entonces 
+                     Escribir Na,'=',fa-2,'x',Na/(fa-2);
                   FinSi
                FinSi
             FinSi
          caso 9:
             Escribir 'Ingrese Numero:';
-            Leer N;
+            Leer Na;
          caso 0: EligeSalir<-Verdadero;
          De Otro Modo:
             Escribir 'Opcion No Valida!';
       FinSegun
    Hasta que EligeSalir
 FinProceso
+

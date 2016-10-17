@@ -30,13 +30,13 @@ Proceso Resolvente
     disc <- ba^2-4*aa*ca;
     Si disc<0 Entonces
         // si son imaginarias
-        preal<- (-b)/(2*aa);
+        preal<- (-b1)/(2*aa);
         pimag<- raizCuadrada(-disc)/(2*aa);
         Escribir "Raiz 1: ",preal,"+",pimag,"i";
         Escribir "Raiz 2: ",preal,"-",pimag,"i";
     Sino
         Si disc=0 Entonces // ver si son iguales o distintas
-            r <- (-ab)/(2*aa);
+            r1 <- (-ab)/(2*aa);
             Escribir "Raiz 1 = Raiz 2: ",ra;
         Sino
             r1 <- ((-ba)+raizCuadrada(disc))/(2*aa);

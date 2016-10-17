@@ -9,7 +9,7 @@
 
 Proceso Hanoi
     
-    Definir torres,cant_discos,discos,i Como Entero;
+    Definir torres,cant_discos,discos,ia Como Entero;
     Dimension torres[3,10], cant_discos[3];
     
     // pedir y validar cuantos discos colocar en la primer torre
@@ -24,26 +24,26 @@ Proceso Hanoi
     cant_discos[0]<-discos;
     cant_discos[1]<-0;
     cant_discos[2]<-0;
-    Para i<-0 Hasta discos-1 hacer
-        torres[0,i]<-discos-i+1;
+    Para ia<-0 Hasta discos-1 hacer
+        torres[0,ia]<-discos-ia+1;
     FinPara
     
     
     // jugar!
-    Definir j,t0,t1,t2,disco_a_mover,cant_movs Como Entero;
+    Definir ja,t0,t1,t2,disco_a_mover,cant_movs Como Entero;
     Definir puede_mover Como Logico;
     cant_movs<-0;
     Mientras cant_discos[2]<>discos Hacer // mientras no esten todos los discos en la tercer torre, el juego sigue
         
         Limpiar Pantalla;
         
-        Para i<-0 Hasta 2 Hacer // dibujar las tres torres
-            escribir "Torre ",i+1;
-            si cant_discos[i]=0 Entonces
+        Para ia<-0 Hasta 2 Hacer // dibujar las tres torres
+            escribir "Torre ",ia+1;
+            si cant_discos[ia]=0 Entonces
                 Escribir "";
             sino
-                para j<-cant_discos[i]-1 hasta 0 con paso -1 Hacer // recorrer los discos de la torre, de arriba hacia abajo
-                    segun torres[i,j] Hacer // dibujar cada disco
+                para ja<-cant_discos[ia]-1 hasta 0 con paso -1 Hacer // recorrer los discos de la torre, de arriba hacia abajo
+                    segun torres[ai,aj] Hacer // dibujar cada disco
                         caso 1: Escribir "                   XX";
                         caso 2: Escribir "                 XXXXXX";
                         caso 3: Escribir "               XXXXXXXXXX";

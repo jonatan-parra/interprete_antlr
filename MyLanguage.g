@@ -29,7 +29,7 @@ instrucciones 	: definicion
 			| segun1
 			| llamar_funcion
 			| ciclo_repetir
-						//| ID PAR_IZQ expr PAR_DER SMCOLON // Una funcion que es llamada pero no se guarda su valor de retorno
+			//| ID PAR_IZQ expr PAR_DER SMCOLON // Una funcion que es llamada pero no se guarda su valor de retorno
 			;
 			
 llamar_funcion : ID PAR_IZQ llamar_funcion PAR_DER (SMCOLON)?
@@ -48,8 +48,9 @@ varios_id   : ID COMMA varios_id  // Esta gramatica se usa para definir varias v
 			
 asignacion1 : ID ASIGNACION (SUMOP)? ID SMCOLON
 			| ID ASIGNACION expr SMCOLON // Asignacion de funciones
-			| ID COR_IZQ expr COR_DER ASIGNACION expr SMCOLON
+			| ID COR_IZQ expr COR_DER ASIGNACION (expr |contenido_escribir ) SMCOLON  // Asignacion para matrices
 			| ID ASIGNACION MENSAJE SMCOLON// Se asigna una cadena ans <- "Hola";
+			| ID ASIGNACION booleanExpr SMCOLON
 			;
 
 escribir	: ESCRIBIR expr SMCOLON
@@ -79,28 +80,30 @@ leer 		: LEER ID COR_IZQ varios_valores COR_DER SMCOLON
 			;
 
 expr 		:   expr MULOP expr
-			|   (SUMOP)? ID COR_IZQ expr COR_DER
+			|   NO_ID ID
+			|   SUMOP expr
+			|   ID COR_IZQ expr COR_DER
 			|   COR_IZQ expr COR_DER
 		    |	expr SUMOP expr
 		    |	expr POTENCIA expr
 		    |	expr MODOP expr
 		    |	expr MODULO expr
-		    |   expr ('&'|'|') expr //Corregir
+		    |   expr ('&'|'|'| Y | O) expr //Corregir
 		    |	REAL
 		    |   ENTERO
 		    |   VERDADERO
 		    |   FALSO
 		    |   ROP
-		    |   (SUMOP)? ID COMMA expr
-		    |   (SUMOP)? ID 
+		    |   ID COMMA expr
+		    |   ID 
 		    |	PAR_IZQ expr PAR_DER
-		    |   (SUMOP)? ID PAR_IZQ expr PAR_DER
+		    |   ID PAR_IZQ expr PAR_DER
 		    |   expr COMMA expr
 		    |   ID PAR_IZQ PAR_DER  // Funcion sin argumentos
 		    |   NEGACION expr
 			;
 			
-ciclo_para  : PARA  ID ASIGNACION expr HASTA expr HACER instrucciones* FINPARA; 		
+ciclo_para  : PARA  ID ASIGNACION expr HASTA expr (CON PASO expr)? HACER instrucciones* FINPARA; 		
 
 ciclo_mientras : MIENTRAS (PAR_IZQ)? booleanExpr+ (PAR_DER)? HACER instrucciones* FINMIENTRAS;	
 
@@ -152,6 +155,8 @@ DE:  D E;
 OTRO: O T R O;
 MODO: M O D O;
 QUE:  Q U E;
+CON: C O N;
+PASO: P A S O;
 // MOD : M O D;
 
 COMMENT 		: '/*' .*? '*/' -> skip ;
@@ -159,7 +164,7 @@ LINE_COMMENT 	: '//' ~[\r\n]* -> skip ;
 WS		: [ \t\r\n]+ -> skip ;   
     
 // Seccion tipos de variables
-VAR   	 : ( R E A L | E N T E R O | N U M E R I C O | L O G I C O | C A R A C T E R | T E X T O | C A D E N A);
+VAR   	 : ( R E A L | E N T E R O | N U M E R I C O | L O G I C O | C A R A C T E R | T E X T O | C A D E N A | N U M E R O);
 
    
 // Seccion de caracteres
@@ -202,6 +207,7 @@ SUMOP	: ('+'|'-');
 MODOP   : '%';
 MODULO  : M O D;
 POTENCIA : '^';
+
 //AMPERSAND : '&';
 //OR_OP    : '|';
 //COMILLAS : '"';
@@ -209,6 +215,7 @@ POTENCIA : '^';
 
 ASIGNACION : '<-';
 NEGACION : '~';
+NO_ID : N O;
 ROP   	 :  ( '=' | '<>' | '<' | '>' | '<=' | '>=' | '&' | '|');
 DOS_PUNTOS : ( ':' );  
 SMCOLON : ';' ;  
@@ -218,7 +225,7 @@ REAL   : [0-9]+( | [.][0-9]+);
 
 ID    	 : [a-zA-Z][a-zA-Z0-9_]*;
 //CONTENIDO_IMPRIMIBLE : ( S I | [a-zA-Z0-9_])+;
-MENSAJE : '"' .*? '"';
+MENSAJE : ('"'| '\'' ) .*? ('"'| '\'' ); // Puede comenzar con comilla simple y terminar con comilla doble
 // COMMENT 		: '"' .*? '"';
 
 
