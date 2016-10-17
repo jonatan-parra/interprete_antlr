@@ -4,8 +4,8 @@ subproceso accesibles <- dfs(nodo,visitado)
     
     visitado[nodo] <- verdadero;
     
-    para i<-0 hasta 100 hacer
-        si mat[nodo,i] & ~visitado[i] entonces
+    para ia<-0 hasta 100 hacer
+        si mat[nodo,ia] & ~visitado[ia] entonces
             accesibles <- accesibles + 1;
         finsi
     finpara
@@ -13,10 +13,10 @@ finsubproceso
 
 
 proceso mi_proceso
-    definir a,array como entero;
+    definir aa,array como entero;
     dimension array[100];
-    a <- dfs(0,array);
-    segun a hacer
+    aa <- dfs(0,array);
+    segun aa hacer
         caso 99:
              Escribir "Wow tiene muchos decendientes";
         caso 100:

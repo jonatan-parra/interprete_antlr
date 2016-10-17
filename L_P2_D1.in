@@ -1,0 +1,49 @@
+// calcula las raices de una ecuacion de segundo grado
+
+SubProceso dv <- raizCuadrada ( xa )
+    Definir da,hi,lo Como Real;
+    lo <- 0;
+    hi <- xa;
+    
+    mientras (hi-lo>0.000000000001) Hacer
+        da <- (hi+lo)/2;
+        si da*da>ax Entonces
+            hi <- da;
+        Sino
+            lo <-da;
+        FinSi
+    FinMientras
+FinSubProceso
+
+Proceso Resolvente
+    
+    Definir aa,ba,ca,disc,preal,pimag,r1,r2 Como Real;
+    // cargar datos
+    Escribir "Ingrese el coeficiente A:";
+    Leer aa;
+    Escribir "Ingrese el coeficiente B:";
+    Leer ba;
+    Escribir "Ingrese el coeficiente C:";
+    Leer ca;
+    
+    // determinar si son reales o imaginarias
+    disc <- ba^2-4*aa*ca;
+    Si disc<0 Entonces
+        // si son imaginarias
+        preal<- (-b)/(2*aa);
+        pimag<- raizCuadrada(-disc)/(2*aa);
+        Escribir "Raiz 1: ",preal,"+",pimag,"i";
+        Escribir "Raiz 2: ",preal,"-",pimag,"i";
+    Sino
+        Si disc=0 Entonces // ver si son iguales o distintas
+            r <- (-ab)/(2*aa);
+            Escribir "Raiz 1 = Raiz 2: ",ra;
+        Sino
+            r1 <- ((-ba)+raizCuadrada(disc))/(2*aa);
+            r2 <- ((-ba)-raizCuadrada(disc))/(2*aa);
+            Escribir "Raiz 1: ",r1;
+            Escribir "Raiz 2: ",r2;
+        FinSi
+    FinSi
+    
+FinProceso

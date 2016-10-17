@@ -48,6 +48,16 @@ public interface MyLanguageListener extends ParseTreeListener {
 	 */
 	void exitInstrucciones(MyLanguageParser.InstruccionesContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MyLanguageParser#llamar_funcion}.
+	 * @param ctx the parse tree
+	 */
+	void enterLlamar_funcion(MyLanguageParser.Llamar_funcionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MyLanguageParser#llamar_funcion}.
+	 * @param ctx the parse tree
+	 */
+	void exitLlamar_funcion(MyLanguageParser.Llamar_funcionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MyLanguageParser#definicion}.
 	 * @param ctx the parse tree
 	 */
@@ -187,4 +197,14 @@ public interface MyLanguageListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSegun1(MyLanguageParser.Segun1Context ctx);
+	/**
+	 * Enter a parse tree produced by {@link MyLanguageParser#ciclo_repetir}.
+	 * @param ctx the parse tree
+	 */
+	void enterCiclo_repetir(MyLanguageParser.Ciclo_repetirContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MyLanguageParser#ciclo_repetir}.
+	 * @param ctx the parse tree
+	 */
+	void exitCiclo_repetir(MyLanguageParser.Ciclo_repetirContext ctx);
 }

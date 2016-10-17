@@ -35,6 +35,12 @@ public interface MyLanguageVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInstrucciones(MyLanguageParser.InstruccionesContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link MyLanguageParser#llamar_funcion}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLlamar_funcion(MyLanguageParser.Llamar_funcionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link MyLanguageParser#definicion}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -118,4 +124,10 @@ public interface MyLanguageVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSegun1(MyLanguageParser.Segun1Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link MyLanguageParser#ciclo_repetir}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCiclo_repetir(MyLanguageParser.Ciclo_repetirContext ctx);
 }

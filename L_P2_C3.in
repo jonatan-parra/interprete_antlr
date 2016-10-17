@@ -1,13 +1,13 @@
-subproceso a <- numero_aleatorio()
+subproceso aa <- numero_aleatorio()
      //Este numero fue escogido aleatoriamente por mi :v
-     definir a como entero;
-     a <- 10;
+     definir aa como entero;
+     aa <- 10;
 finsubproceso
 
 proceso proceso_1
-    definir v como entero;
+    definir va como entero;
     repetir
           Escribir "Nope, no le has pegado";
-          v <- numero_aleatorio();
-    hasta que v=20
+          va <- numero_aleatorio();
+    hasta que va=5455
 finalgoritmo

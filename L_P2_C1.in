@@ -23,8 +23,8 @@ FinSubProceso
 Algoritmo algo
     mostrar( doble(2) );
     mostrar( saludo );
-    mostrar( saludo( a(1,2,3) ) );
+    mostrar( saludo( aa(1,2,3) ) );
     hola; hola                                      ;
     hola;
-    saludo                   ( hola                 (a) ) ;
+    saludo                   ( hola                 (aa) ) ;
 FinAlgoritmo

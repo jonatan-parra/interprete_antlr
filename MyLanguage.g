@@ -7,6 +7,7 @@ commands 	: subproceso1 //proceso1 subproceso1
 
 subproceso1	: SUBPROCESO ID instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
 			| SUBPROCESO ID ASIGNACION ID (PAR_IZQ ID* PAR_DER)* instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
+			| SUBPROCESO ID PAR_IZQ varios_id PAR_DER instrucciones* (FINSUBPROCESO|FINFUNCION) subproceso1
 		//	|  // Funcion que no recibe parametros
 	//		| EOF  // Esta linea  la puse para que no me marcara error,
 			| proceso1 
@@ -26,8 +27,18 @@ instrucciones 	: definicion
 			| ciclo_mientras
 			| condicional
 			| segun1
-			| ID PAR_IZQ expr PAR_DER SMCOLON // Una funcion que es llamada pero no se guarda su valor de retorno
+			| llamar_funcion
+			| ciclo_repetir
+						//| ID PAR_IZQ expr PAR_DER SMCOLON // Una funcion que es llamada pero no se guarda su valor de retorno
 			;
+			
+llamar_funcion : ID PAR_IZQ llamar_funcion PAR_DER (SMCOLON)?
+			//| llamar_funcion expr
+			| expr
+			| ID SMCOLON // LLama un funcion sin usar parametros: hola;
+			;
+			
+			
 
 definicion  : DEFINIR varios_id COMO VAR SMCOLON;
 
@@ -35,7 +46,7 @@ varios_id   : ID COMMA varios_id  // Esta gramatica se usa para definir varias v
 			| ID 
 			;
 			
-asignacion1 : ID ASIGNACION ID SMCOLON
+asignacion1 : ID ASIGNACION (SUMOP)? ID SMCOLON
 			| ID ASIGNACION expr SMCOLON // Asignacion de funciones
 			| ID COR_IZQ expr COR_DER ASIGNACION expr SMCOLON
 			| ID ASIGNACION MENSAJE SMCOLON// Se asigna una cadena ans <- "Hola";
@@ -68,39 +79,39 @@ leer 		: LEER ID COR_IZQ varios_valores COR_DER SMCOLON
 			;
 
 expr 		:   expr MULOP expr
+			|   (SUMOP)? ID COR_IZQ expr COR_DER
+			|   COR_IZQ expr COR_DER
 		    |	expr SUMOP expr
 		    |	expr POTENCIA expr
 		    |	expr MODOP expr
 		    |	expr MODULO expr
-		    |   expr ('&'|'|') expr
-		//    |  	expr OR_OP expr
-		//    |   expr ROP expr  // a*1 = b+2
-				
+		    |   expr ('&'|'|') expr //Corregir
 		    |	REAL
 		    |   ENTERO
 		    |   VERDADERO
 		    |   FALSO
 		    |   ROP
-		    |   ID COMMA expr
-		    |   ID 
-		    |   COR_IZQ expr COR_DER
-		    |   ID COR_IZQ expr COR_DER
+		    |   (SUMOP)? ID COMMA expr
+		    |   (SUMOP)? ID 
 		    |	PAR_IZQ expr PAR_DER
-		    |   ID PAR_IZQ expr PAR_DER
+		    |   (SUMOP)? ID PAR_IZQ expr PAR_DER
 		    |   expr COMMA expr
 		    |   ID PAR_IZQ PAR_DER  // Funcion sin argumentos
+		    |   NEGACION expr
 			;
 			
 ciclo_para  : PARA  ID ASIGNACION expr HASTA expr HACER instrucciones* FINPARA; 		
 
-ciclo_mientras : MIENTRAS booleanExpr+ HACER instrucciones* FINMIENTRAS;	
+ciclo_mientras : MIENTRAS (PAR_IZQ)? booleanExpr+ (PAR_DER)? HACER instrucciones* FINMIENTRAS;	
 
 condicional : SI booleanExpr ENTONCES instrucciones* (SINO instrucciones*)? FINSI; 
 booleanExpr : expr ROP booleanExpr
 			| expr
 			;
  
-segun1 		: SEGUN expr HACER (CASO expr DOS_PUNTOS instrucciones*)* (DE OTRO MODO DOS_PUNTOS instrucciones*)? FINSEGUN;      
+segun1 		: SEGUN expr HACER (CASO expr DOS_PUNTOS instrucciones*)* (DE OTRO MODO DOS_PUNTOS instrucciones*)? FINSEGUN;
+
+ciclo_repetir : REPETIR instrucciones* HASTA QUE ID ROP ENTERO;      
  
  
     
@@ -140,7 +151,7 @@ CASO : C A S O;
 DE:  D E;
 OTRO: O T R O;
 MODO: M O D O;
-
+QUE:  Q U E;
 // MOD : M O D;
 
 COMMENT 		: '/*' .*? '*/' -> skip ;
@@ -186,8 +197,8 @@ COR_IZQ : '[';
 COR_DER :']';
 
 // Operadores
-MULOP	: ( '*' | '/' );
-SUMOP	: ('+' | '-') ;
+MULOP	: ( '*'|'/' );
+SUMOP	: ('+'|'-');
 MODOP   : '%';
 MODULO  : M O D;
 POTENCIA : '^';
@@ -202,8 +213,9 @@ ROP   	 :  ( '=' | '<>' | '<' | '>' | '<=' | '>=' | '&' | '|');
 DOS_PUNTOS : ( ':' );  
 SMCOLON : ';' ;  
 COMMA: ',';
+ENTERO : [0-9]+;  // Si no funcionan bien los tipos de datos mover ENTERO despues de REAL
 REAL   : [0-9]+( | [.][0-9]+);
-ENTERO : [0-9]+;
+
 ID    	 : [a-zA-Z][a-zA-Z0-9_]*;
 //CONTENIDO_IMPRIMIBLE : ( S I | [a-zA-Z0-9_])+;
 MENSAJE : '"' .*? '"';
