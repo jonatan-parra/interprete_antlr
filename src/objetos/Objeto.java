@@ -3,7 +3,7 @@ package objetos;
 public class Objeto {
 
 	private String id;
-	private Object objeto;
+	private String objeto;
 	private String tipo;
 	
 	public Objeto(String id, String tipo){
@@ -14,11 +14,6 @@ public class Objeto {
 	public Objeto(String id){
 		this.id = id;
 	}
-
-	public Objeto(String id, Objeto obj){
-		this.id = id;
-		objeto = obj;
-	}
 	
 	public String getId() {
 		return id;
@@ -28,11 +23,11 @@ public class Objeto {
 		this.id = id;
 	}
 
-	public Object getObjeto() {
+	public String getObjeto() {
 		return objeto;
 	}
 
-	public void setObjeto(Object objeto) {
+	public void setObjeto(String objeto) {
 		this.objeto = objeto;
 	}
 
