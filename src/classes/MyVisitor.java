@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang.math.NumberUtils;
+import org.stringtemplate.v4.compiler.STParser.expr_return;
 
 import objetos.Objeto;
 
@@ -54,6 +55,14 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			error();
 		}
 		return obj;
+	}
+	public String isInicialized(Objeto obj){
+		String s = obj.getObjeto();
+		if(s==null){
+			error = "Error, variable: " + obj.getId() + " no inicializada.";
+			error();
+		}
+		return s;
 	}
 
 	/*
@@ -138,7 +147,6 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		else if (ctx.expr(1) == null && ctx.contenido_escribir() == null && ctx.expr(0) != null) {
 			Objeto obj = isDefined(ctx.ID(0).toString());
 			T tipo = visitExpr(ctx.expr(0));
-			System.out.println(tipo);
 			if (tipo != null) {
 				boolean isNumber = NumberUtils.isNumber(tipo.toString());
 
@@ -174,7 +182,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 						error();
 					}
 				} else {
-					error = "error desconocido";
+					error = "error desconocido asignacion - contenido escribir";
 					error();
 				}
 			} else {
@@ -235,13 +243,12 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				error();
 			} else {
 				obj.setTipo(visitBooleanExpr(ctx.booleanExpr()).toString());
-				System.out.println(obj.getTipo());
 			}
 		} else {
-			error = "Error desconocido";
+			error = "Error desconocido asignacion ";
 			error();
 		}
-		
+
 		return null;
 
 	}
@@ -310,6 +317,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 						error = "Variable no definida " + id;
 						error();
 					}
+				
 
 				} else {
 					error = "se esperaba un entero timeout";
@@ -417,20 +425,16 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 
 		}
 		// caso?? ID, expr
-		else if (ctx.ID() != null && ctx.COMMA() != null && ctx.expr(1) != null) {
-			System.out.println("definir Caso ID, Expr");
+		else if (ctx.ID() != null && ctx.COMMA() != null && ctx.expr(0) != null) {
+			Objeto obj = isDefined(ctx.ID().toString());
+			String s = obj.getObjeto() + ", " + visitExpr(ctx.expr(0)).toString();
+			return (T) s;
 		}
 		// ID
 		else if (ctx.ID() != null) {
-			Objeto obj = buscar(ctx.ID().toString());
-			if (obj == null) {
-				error = "variable " + ctx.ID().toString() + " no definida";
-				error();
-			} else {
-				String valor = obj.getObjeto();
-				return (T) valor;
-			}
-
+			Objeto obj = isDefined(ctx.ID().toString());
+			String valor = isInicialized(obj);
+			return (T) valor;
 		}
 		// (expr)
 		else if (ctx.PAR_DER() != null && ctx.expr(0) != null && ctx.PAR_DER() != null) {
@@ -544,16 +548,71 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				error();
 			}
 		}
-
-		// booleanExpr : expr ROP booleanExpr
-		// | expr
-		// ;
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public T visitContenido_escribir(MyLanguageParser.Contenido_escribirContext ctx) {
-		return visitChildren(ctx);
+		
+		
+		if(ctx.MENSAJE()!=null && ctx.COMMA()!=null && ctx.contenido_escribir()!=null){
+			String s = ctx.MENSAJE().toString() + "," + visitContenido_escribir(ctx.contenido_escribir()).toString();
+			return (T) s;
+		}
+		else if(ctx.expr()!=null && ctx.COMMA()!=null && ctx.contenido_escribir()!=null){
+			String s = visitExpr(ctx.expr()).toString() + "," + visitContenido_escribir(ctx.contenido_escribir());
+			return (T) s;
+		}
+		else if(ctx.MENSAJE()!=null && ctx.expr()==null){
+			if(ctx.contenido_escribir()==null){
+				String s = ctx.MENSAJE().getText();
+				return (T) s;
+			}
+			else{
+				String s = ctx.MENSAJE().getText() + visitContenido_escribir(ctx.contenido_escribir()).toString();
+				return (T) s;
+			}
+			
+		}
+		else{
+			if(ctx.contenido_escribir()==null){
+				String s = visitExpr(ctx.expr()).toString();
+				return (T) s;
+			}
+			else{
+				String s = visitExpr(ctx.expr()).toString() + visitContenido_escribir(ctx.contenido_escribir()).toString();
+				return (T) s;
+			}
+		}
+		
+		
+//		contenido_escribir : MENSAJE (contenido_escribir)?
+//				| MENSAJE COMMA contenido_escribir
+//				| expr (contenido_escribir)?
+//				| expr COMMA contenido_escribir
+//				;	
+	
+	}
+
+	@Override
+	public T visitEscribir(MyLanguageParser.EscribirContext ctx) {
+		
+		if(ctx.ID()!=null){
+			Objeto obj = isDefined(ctx.ID().toString());
+			System.out.println(obj.getObjeto() + visitExpr(ctx.expr()));
+			return null;
+		}
+		else if(ctx.contenido_escribir()!=null){
+			System.out.println(visitContenido_escribir(ctx.contenido_escribir()).toString());
+		}
+		else{
+			String s = visitExpr(ctx.expr()).toString();
+			System.out.println(s);
+		}
+		return null;
+//		escribir	: ESCRIBIR expr SMCOLON
+//		| ESCRIBIR ID expr SMCOLON
+//		| ESCRIBIR contenido_escribir SMCOLON
 	}
 	/*
 	 * @Override public T visitExpr(ExprContext ctx) { if (ctx.DOUBLE() != null)

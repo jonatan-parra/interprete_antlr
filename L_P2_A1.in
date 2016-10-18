@@ -2,8 +2,8 @@ proceso mi_proceso
    deFinir A1,b1,c1,d1,e1 como logico;
    e1 <- verdadero;
    a1 <- falso;
-   b1 <- 1 < 2;
-
-
-   Escribir a1,b1,c1;
+   b1 <- falso;
+   Escribir a1,e1,b1;
+   escribir "asd";
+   escribir 2+1;
 finproceso
