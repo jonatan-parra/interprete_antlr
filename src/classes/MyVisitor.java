@@ -45,8 +45,8 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		}
 		return null;
 	}
-	
-	public Objeto isDefined(String id){
+
+	public Objeto isDefined(String id) {
 		Objeto obj = buscar(id);
 		if (obj == null) {
 			// SEMANTICO
@@ -89,14 +89,10 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		}
 		return false;
 	}
-
-	@Override
-	public T visitProceso1(MyLanguageParser.Proceso1Context ctx) {
-
-		ctx.instrucciones();
-
-		return visitChildren(ctx);
-	}
+	/*
+	 * @Override public T visitProceso1(MyLanguageParser.Proceso1Context ctx) {
+	 * ctx.instrucciones(); return visitChildren(ctx); }
+	 */
 
 	@Override
 	public T visitDefinicion(MyLanguageParser.DefinicionContext ctx) {
@@ -118,14 +114,9 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 
 	}
 
-	
-	
 	@Override
 	public T visitAsignacion1(MyLanguageParser.Asignacion1Context ctx) {
 
-
-		
-		
 		// Camino 1, asignar ID
 		if (ctx.ID(1) != null) {
 			Objeto obj = isDefined(ctx.ID(0).toString());
@@ -192,7 +183,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			}
 		}
 		// camino 3 arreglos
-		else if (ctx.expr(1) != null || ctx.contenido_escribir()!=null) {
+		else if (ctx.expr(1) != null || ctx.contenido_escribir() != null) {
 			T tipo = visitExpr(ctx.expr(0));
 			boolean isNumber = NumberUtils.isNumber(tipo.toString());
 			Double number = Double.valueOf(tipo.toString());
@@ -210,12 +201,11 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 					String id = ctx.ID().toString() + "[" + tipo + "]";
 					Objeto obj = buscar(id);
 					if (obj != null) {
-							if(ctx.expr(1)!=null){
-								obj.setObjeto(visitExpr(ctx.expr(1)).toString());
-							}
-							else{
-								obj.setObjeto(visitContenido_escribir(ctx.contenido_escribir()).toString());
-							}
+						if (ctx.expr(1) != null) {
+							obj.setObjeto(visitExpr(ctx.expr(1)).toString());
+						} else {
+							obj.setObjeto(visitContenido_escribir(ctx.contenido_escribir()).toString());
+						}
 					} else {
 						error = "Variable no definida " + id;
 						error();
@@ -244,14 +234,16 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				error = "Se esperaba un " + obj.getTipo();
 				error();
 			} else {
-				// booleanExpr----------------
+				obj.setTipo(visitBooleanExpr(ctx.booleanExpr()).toString());
+				System.out.println(obj.getTipo());
 			}
 		} else {
 			error = "Error desconocido";
 			error();
 		}
+		
+		return null;
 
-		return visitChildren(ctx);
 	}
 
 	@Override
@@ -370,7 +362,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			return (T) c;
 		}
 		// Case Y/O
-		else if (ctx.expr(0) != null && (ctx.Y() != null || ctx.O() != null) && ctx.expr(1) != null) {
+		else if (ctx.expr(0) != null && (ctx.AND_OP() != null || ctx.OR_OP() != null) && ctx.expr(1) != null) {
 			String a = visitExpr(ctx.expr(0)).toString();
 			String b = visitExpr(ctx.expr(1)).toString();
 			if (!(a.equals("verdadero") || a.equals("falso"))) {
@@ -382,14 +374,14 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				error();
 			}
 			String valor;
-			if (ctx.Y() != null) {
+			if (ctx.AND_OP() != null) {
 				if (a.equals("verdadero") && b.equals("verdadero")) {
 					valor = "verdadero";
 				} else {
 					valor = "falso";
 				}
 				return (T) valor;
-			} else if (ctx.O() != null) {
+			} else if (ctx.OR_OP() != null) {
 				if (a.equals("verdadero") || b.equals("verdadero")) {
 					valor = "verdadero";
 				} else {
@@ -470,13 +462,92 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				return (T) bool;
 			}
 		}
-
 		System.out.println("Estado no definido");
 		return null;
 	}
 
 	@Override
 	public T visitBooleanExpr(MyLanguageParser.BooleanExprContext ctx) {
+
+		if (ctx.booleanExpr() == null) {
+			return visitExpr(ctx.expr());
+		} else {
+			String rop = ctx.ROP().toString();
+			switch (rop) {
+			case "=":
+				Double a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				Double b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
+				if (a == b) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+			case "<>":
+				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
+				if (a != b) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+			case "<":
+				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
+				if (a < b) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+			case ">":
+				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
+				if (a > b) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+			case "<=":
+				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
+				if (a <= b) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+			case ">=":
+				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
+				if (a >= b) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+			case "&":
+				String aa = visitExpr(ctx.expr()).toString();
+				String bb = visitBooleanExpr(ctx.booleanExpr()).toString();
+				if (aa.equals("verdadero") && bb.equals("verdadero")) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+
+			case "|":
+				aa = visitExpr(ctx.expr()).toString();
+				bb = visitBooleanExpr(ctx.booleanExpr()).toString();
+				if (aa.equals("verdadero") || bb.equals("verdadero")) {
+					return (T) "verdadero";
+				} else {
+					return (T) "falso";
+				}
+			default:
+				error = "error desconocido BooleanExpr";
+				error();
+			}
+		}
+
+		// booleanExpr : expr ROP booleanExpr
+		// | expr
+		// ;
 		return visitChildren(ctx);
 	}
 
