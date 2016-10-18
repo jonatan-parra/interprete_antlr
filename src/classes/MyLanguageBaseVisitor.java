@@ -1,7 +1,6 @@
 // Generated from MyLanguage.g by ANTLR 4.5.3
 package classes;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
  * This class provides an empty implementation of {@link MyLanguageVisitor},
@@ -61,7 +60,6 @@ public class MyLanguageBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitVarios_id(MyLanguageParser.Varios_idContext ctx) { return visitChildren(ctx); }
-	@Override public T visitVarios_id(MyLanguageParser.Varios_idContext ctx, TerminalNode terminaNode) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

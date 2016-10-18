@@ -88,7 +88,8 @@ expr 		:   expr MULOP expr
 		    |	expr POTENCIA expr
 		    |	expr MODOP expr
 		    |	expr MODULO expr
-		    |   expr ('&'|'|'| Y | O) expr //Corregir
+		   // |   expr ('&'|'|'| Y | O) expr //Corregir
+		    |   expr (AND_OP | OR_OP)
 		    |	REAL
 		    |   ENTERO
 		    |   VERDADERO
@@ -212,6 +213,8 @@ POTENCIA : '^';
 //OR_OP    : '|';
 //COMILLAS : '"';
 //COMPARADOR : '=';
+AND_OP : ('&' | Y);
+OR_OP : ('|' | O);
 
 ASIGNACION : '<-';
 NEGACION : '~';
