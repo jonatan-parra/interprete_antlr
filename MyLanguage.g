@@ -223,7 +223,7 @@ COMMA: ',';
 ENTERO : [0-9]+;  // Si no funcionan bien los tipos de datos mover ENTERO despues de REAL
 REAL   : [0-9]+( | [.][0-9]+);
 
-ID    	 : [a-zA-Z][a-zA-Z0-9_]*;
+ID    	 : [a-zA-Z][a-zA-Z0-9_]*; // Esta es la expresion para los ID, segun veo esta bien. no se porque no funciona con caracteres individuales
 //CONTENIDO_IMPRIMIBLE : ( S I | [a-zA-Z0-9_])+;
 MENSAJE : ('"'| '\'' ) .*? ('"'| '\'' ); // Puede comenzar con comilla simple y terminar con comilla doble
 // COMMENT 		: '"' .*? '"';

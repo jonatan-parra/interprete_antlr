@@ -1,7 +1,9 @@
 proceso mi_proceso
-   definir a1,b1,c1,d1,e1 como entero;
-   a1 <- b1;
+   deFinir A1,b1,c1,d1,e1 como entero;
+   a1 <- 2*2;
+   e1 <- 34*4;
    b1 <- a1;
-   a1 <- c1;
+   b1 <- a1;
+
    Escribir aal,b1,c1;
 finproceso

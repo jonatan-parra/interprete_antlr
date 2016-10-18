@@ -13,6 +13,8 @@ import java.util.ArrayList;
 public class MyLanguageParser extends Parser {
 	static { RuntimeMetaData.checkVersion("4.5.3", RuntimeMetaData.VERSION); }
 
+	public static int camino=-1;
+	
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
@@ -906,6 +908,7 @@ public class MyLanguageParser extends Parser {
 				setState(150);
 				match(SMCOLON);
 				}
+				camino = 1;
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
