@@ -5,7 +5,6 @@
  */
 package classes;
 
-import java.awt.List;
 import java.util.ArrayList;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -29,8 +28,9 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 
 	ArrayList<Objeto> table = new ArrayList<Objeto>();
 
-	public void error() throws Exception {
-		throw new Exception(error);
+	public void error() {
+		System.out.println(error);
+		System.exit(0);
 	}
 
 	public void guardar(String id, String tipo) {
@@ -44,6 +44,16 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			}
 		}
 		return null;
+	}
+	
+	public Objeto isDefined(String id){
+		Objeto obj = buscar(id);
+		if (obj == null) {
+			// SEMANTICO
+			error = "Error, variable: " + id + " no definida.";
+			error();
+		}
+		return obj;
 	}
 
 	/*
@@ -108,27 +118,26 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 
 	}
 
+	
+	
 	@Override
 	public T visitAsignacion1(MyLanguageParser.Asignacion1Context ctx) {
 
-		Objeto obj = buscar(ctx.ID(0).toString());
-		if (obj == null) {
-			// SEMANTICO
-			error = "Error, variable: " + ctx.ID(0) + " no definida.";
-			Exception log = new Exception(error);
-			System.out.println(error);
-		}
+
+		
+		
 		// Camino 1, asignar ID
 		if (ctx.ID(1) != null) {
+			Objeto obj = isDefined(ctx.ID(0).toString());
 			Objeto obj2 = buscar(ctx.ID(1).toString());
 			if (obj2 == null) {
 				// SEMANTICO
 				error = "Error, variable: " + ctx.ID(1) + " no definida.";
-				System.out.println(error);
+				error();
 			} else if (obj2.getObjeto() == null) {
 				// SEMANTICO
 				error = "Error, variable: " + ctx.ID(1) + " no tiene valor.";
-				System.out.println(error);
+				error();
 			} else {
 				table.remove(obj);
 				obj.setObjeto(obj2.getObjeto());
@@ -136,92 +145,140 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		}
 		// Camino 2 asigna expr
 		else if (ctx.expr(1) == null && ctx.contenido_escribir() == null && ctx.expr(0) != null) {
+			Objeto obj = isDefined(ctx.ID(0).toString());
 			T tipo = visitExpr(ctx.expr(0));
-			boolean isNumber = NumberUtils.isNumber(tipo.toString());
-			if (getTipo(obj) == 1) {
-				if (isNumber) {
-					Double number = Double.valueOf(tipo.toString());
-					if (isInt(number)) {
+			System.out.println(tipo);
+			if (tipo != null) {
+				boolean isNumber = NumberUtils.isNumber(tipo.toString());
+
+				if (getTipo(obj) == 1) {
+					if (isNumber) {
+						Double number = Double.valueOf(tipo.toString());
+						if (isInt(number)) {
+							obj.setObjeto(number + "");
+						} else {
+							error = "se esperaba un entero";
+							error();
+						}
+					} else {
+						error = "se esperaba un numero";
+						error();
+
+					}
+				} else if (getTipo(obj) == 2) {
+					if (isNumber) {
+						Double number = Double.valueOf(tipo.toString());
 						obj.setObjeto(number + "");
 					} else {
-						error = "se esperaba un entero";
-						System.out.println(error);
+						error = "se esperaba un numero";
+						error();
+					}
+				} else if (getTipo(obj) == 3) {
+					obj.setObjeto(tipo + "");
+				} else if (getTipo(obj) == 4) {
+					if (tipo.equals("verdadero") || tipo.equals("falso")) {
+						obj.setObjeto(tipo + "");
+					} else {
+						error = "Se esperaba verdadero o falso";
+						error();
 					}
 				} else {
-					error = "se esperaba un numero";
-					System.out.println(error);
-
+					error = "error desconocido";
+					error();
 				}
-			} else if (getTipo(obj) == 2) {
-				if (isNumber) {
-					Double number = Double.valueOf(tipo.toString());
-					obj.setObjeto(number + "");
-				} else {
-					error = "se esperaba un numero";
-					System.out.println(error);
-				}
-			} else if (getTipo(obj) == 3) {
-				obj.setObjeto(tipo + "");
-			} else if (getTipo(obj) == 4) {
-				if (tipo.equals("verdadero") || tipo.equals("falso")) {
-					obj.setObjeto(tipo + "");
-				} else {
-					error = "Se esperaba verdadero o falso";
-					System.out.println(error);
-				}
+			} else {
+				error = "Se debe asignar un valor no nulo";
+				error();
 			}
-			// otro tipo
-			else {
-				error = "error desconocido";
-				System.out.println(error);
+		}
+		// camino 3 arreglos
+		else if (ctx.expr(1) != null || ctx.contenido_escribir()!=null) {
+			T tipo = visitExpr(ctx.expr(0));
+			boolean isNumber = NumberUtils.isNumber(tipo.toString());
+			Double number = Double.valueOf(tipo.toString());
+			if (!isNumber) {
+				error = "<linea:col> Error en tiempo de ejecucion: se accedio a una posicion no valida del arreglo: "
+						+ tipo;
+				error();
+				;
+			} else {
+				if (!isInt(number)) {
+					error = "<linea:col> Error en tiempo de ejecucion: se accedio a una posicion no valida del arreglo: "
+							+ number;
+					error();
+				} else {
+					String id = ctx.ID().toString() + "[" + tipo + "]";
+					Objeto obj = buscar(id);
+					if (obj != null) {
+							if(ctx.expr(1)!=null){
+								obj.setObjeto(visitExpr(ctx.expr(1)).toString());
+							}
+							else{
+								obj.setObjeto(visitContenido_escribir(ctx.contenido_escribir()).toString());
+							}
+					} else {
+						error = "Variable no definida " + id;
+						error();
+					}
+				}
+
 			}
-
-			System.out.println("case 2");
-			// table.remove(obj);
-
-		} else if (ctx.expr(1) != null) {
-			System.out.println("case 3");
-		} else if (ctx.MENSAJE() != null) {
+		}
+		// camino 4 cadenas
+		else if (ctx.MENSAJE() != null) {
+			Objeto obj = isDefined(ctx.ID(0).toString());
 			if (getTipo(obj) != 3) {
 				// SEMANTICO
 				error = "Se esperaba un " + obj.getTipo();
-				System.out.println(error);
+				error();
 
+			} else {
+				obj.setObjeto(ctx.MENSAJE() + "");
 			}
-		} else if (ctx.booleanExpr() != null) {
+		}
+		// camino 5 boolean
+		else if (ctx.booleanExpr() != null) {
+			Objeto obj = isDefined(ctx.ID(0).toString());
 			if (getTipo(obj) != 4) {
 				// SEMANTICO
 				error = "Se esperaba un " + obj.getTipo();
-				System.out.println(error);
+				error();
+			} else {
+				// booleanExpr----------------
 			}
-			System.out.println("case 5");
 		} else {
 			error = "Error desconocido";
-			System.out.println(error);
+			error();
 		}
 
-		// asignacion
-		imprimir();
-		// table.add(obj);
 		return visitChildren(ctx);
 	}
 
 	@Override
 	public T visitExpr(MyLanguageParser.ExprContext ctx) {
+		// Multipliación/división
 		if (ctx.expr(0) != null && ctx.MULOP() != null && ctx.expr(1) != null) {
 			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
 			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
-			Double c = a * b;
-			return (T) c;
+			if (ctx.MULOP().toString().equals("*")) {
+				Double c;
+				c = a * b;
 
-		} else if (ctx.NO_ID() != null && ctx.ID() != null) {
+				return (T) c;
+			} else if (ctx.MULOP().toString().equals("/")) {
+				Double c;
+				c = a * b;
+				return (T) c;
+			}
+		}
+		// NO.token
+		else if (ctx.NO_ID() != null && ctx.ID() != null) {
 			Objeto obj = buscar(ctx.ID().toString());
-
 			String bool;
 			if (getTipo(obj) != 4) {
 				// SEMANTICO
 				error = "Negacion se usa para cambiar el estado de variables logicas";
-				System.out.println(error);
+				error();
 			} else if (obj.getObjeto().equals("verdadero")) {
 				bool = "falso";
 				return (T) bool;
@@ -229,50 +286,197 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				bool = "verdadero";
 				return (T) bool;
 			}
-		} else if (ctx.SUMOP() != null && ctx.expr(0) != null) {
-
-		} else if (ctx.ID() != null && ctx.COR_IZQ() != null && ctx.expr(0) != null && ctx.COR_DER() != null) {
-
-		} else if (ctx.COR_IZQ() != null && ctx.expr(0) != null && ctx.COR_DER() != null) {
-
-		} else if (ctx.expr(0) != null && ctx.SUMOP() != null && ctx.expr(1) != null) {
-
-		} else if (ctx.expr(0) != null && ctx.POTENCIA() != null && ctx.expr(1) != null) {
-
-		} else if (ctx.expr(0) != null && ctx.MODOP() != null && ctx.expr(1) != null) {
-
-		} else if (ctx.expr(0) != null && ctx.MODULO() != null && ctx.expr(1) != null) {
-
-		} else if (ctx.REAL() != null) {
-			Double a = Double.valueOf(ctx.REAL().toString());
-			return (T) a;
-		} else if (ctx.ENTERO() != null) {
-			Integer a = Integer.valueOf(ctx.ENTERO().toString());
-			return (T) a;
-		} else if (ctx.VERDADERO() != null) {
-			String bool = "verdadero";
-			return (T) bool;
-		} else if (ctx.FALSO() != null) {
-			String bool = "falso";
-			return (T) bool;
-		} else if (ctx.ROP() != null) {
-
-		} else if (ctx.ID() != null && ctx.COMMA() != null && ctx.expr(1) != null) {
-
-		} else if (ctx.ID() != null) {
-
-		} else if (ctx.PAR_DER() != null && ctx.expr(0) != null && ctx.PAR_DER() != null) {
-
-		} else if (ctx.ID() != null && ctx.PAR_DER() != null && ctx.expr(0) != null && ctx.PAR_DER() != null) {
-
-		} else if (ctx.expr(0) != null && ctx.COMMA() != null && ctx.expr(1) != null) {
-
-		} else if (ctx.ID() != null && ctx.PAR_IZQ() != null && ctx.PAR_DER() != null) {
-
-		} else if (ctx.NEGACION() != null && ctx.expr(0) != null) {
+		}
+		// +/- expr
+		else if (ctx.SUMOP() != null && ctx.expr(0) != null && ctx.expr(1) == null) {
+			T tipo = visitExpr(ctx.expr(0));
+			boolean isNumber = NumberUtils.isNumber(tipo.toString());
+			if (isNumber) {
+				if (ctx.SUMOP().toString().equals("+")) {
+					Double tipe = Double.valueOf(tipo.toString());
+					return (T) tipe;
+				} else {
+					Double tipe = -Double.valueOf(tipo.toString());
+					return (T) tipe;
+				}
+			}
 
 		}
+		// Matriz a <- b[a][][] etc
+		else if (ctx.ID() != null && ctx.COR_IZQ() != null && ctx.expr(0) != null && ctx.COR_DER() != null) {
+			T tipo = visitExpr(ctx.expr(0));
+			boolean isNumber = NumberUtils.isNumber(tipo.toString());
+			if (isNumber) {
+				Double number = Double.valueOf(tipo.toString());
+				if (isInt(number)) {
+					String id = ctx.ID().toString() + "[" + tipo + "]";
+					Objeto obj = buscar(id);
+					if (obj != null) {
+						String valor = obj.getObjeto();
+						return (T) valor;
+					} else {
+						error = "Variable no definida " + id;
+						error();
+					}
 
+				} else {
+					error = "se esperaba un entero timeout";
+					error();
+				}
+			} else {
+				error = "se esperaba un entero timoeut";
+				error();
+
+			}
+		}
+		// caso?? [expr]
+		else if (ctx.COR_IZQ() != null && ctx.expr(0) != null && ctx.COR_DER() != null) {
+			System.out.println("definir Caso [expr]");
+		}
+		// SUMA
+		else if (ctx.expr(0) != null && ctx.SUMOP() != null && ctx.expr(1) != null) {
+			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
+			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			if (ctx.SUMOP().toString().equals("+")) {
+				Double c;
+				c = a + b;
+				return (T) c;
+			} else if (ctx.SUMOP().toString().equals("-")) {
+				Double c;
+				c = a - b;
+				return (T) c;
+			}
+		}
+		// pow
+		else if (ctx.expr(0) != null && ctx.POTENCIA() != null && ctx.expr(1) != null) {
+			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
+			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			Double c = Math.pow(a, b);
+			return (T) c;
+		}
+		// modulo %
+		else if (ctx.expr(0) != null && ctx.MODOP() != null && ctx.expr(1) != null) {
+			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
+			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			Double c = a % b;
+			return (T) c;
+
+		}
+		// modulo mod
+		else if (ctx.expr(0) != null && ctx.MODULO() != null && ctx.expr(1) != null) {
+			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
+			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			Double c = a % b;
+			return (T) c;
+		}
+		// Case Y/O
+		else if (ctx.expr(0) != null && (ctx.Y() != null || ctx.O() != null) && ctx.expr(1) != null) {
+			String a = visitExpr(ctx.expr(0)).toString();
+			String b = visitExpr(ctx.expr(1)).toString();
+			if (!(a.equals("verdadero") || a.equals("falso"))) {
+				error = "Se esperaba un valor logico, en cambio llego" + a;
+				error();
+			}
+			if (!(b.equals("verdadero") || b.equals("falso"))) {
+				error = "Se esperaba un valor logico, en cambio llego" + b;
+				error();
+			}
+			String valor;
+			if (ctx.Y() != null) {
+				if (a.equals("verdadero") && b.equals("verdadero")) {
+					valor = "verdadero";
+				} else {
+					valor = "falso";
+				}
+				return (T) valor;
+			} else if (ctx.O() != null) {
+				if (a.equals("verdadero") || b.equals("verdadero")) {
+					valor = "verdadero";
+				} else {
+					valor = "falso";
+				}
+				return (T) valor;
+			}
+		}
+		// real
+		else if (ctx.REAL() != null) {
+			Double a = Double.valueOf(ctx.REAL().toString());
+			return (T) a;
+		}
+		// entero
+		else if (ctx.ENTERO() != null) {
+			Integer a = Integer.valueOf(ctx.ENTERO().toString());
+			return (T) a;
+		}
+		// logico verdadero
+		else if (ctx.VERDADERO() != null) {
+			String bool = "verdadero";
+			return (T) bool;
+		}
+		// logico falso
+		else if (ctx.FALSO() != null) {
+			String bool = "falso";
+			return (T) bool;
+		}
+		// ROP
+		else if (ctx.ROP() != null) {
+			String rop = ctx.ROP().toString();
+			return (T) rop;
+
+		}
+		// caso?? ID, expr
+		else if (ctx.ID() != null && ctx.COMMA() != null && ctx.expr(1) != null) {
+			System.out.println("definir Caso ID, Expr");
+		}
+		// ID
+		else if (ctx.ID() != null) {
+			Objeto obj = buscar(ctx.ID().toString());
+			if (obj == null) {
+				error = "variable " + ctx.ID().toString() + " no definida";
+				error();
+			} else {
+				String valor = obj.getObjeto();
+				return (T) valor;
+			}
+
+		}
+		// (expr)
+		else if (ctx.PAR_DER() != null && ctx.expr(0) != null && ctx.PAR_DER() != null) {
+			return visitExpr(ctx.expr(0));
+		}
+		// function f(expr)
+		else if (ctx.ID() != null && ctx.PAR_DER() != null && ctx.expr(0) != null && ctx.PAR_DER() != null) {
+			System.out.println("definir Caso funcion(expr)");
+		}
+		// caso?? ID, expr
+		else if (ctx.expr(0) != null && ctx.COMMA() != null && ctx.expr(1) != null) {
+			// caso expr,expr
+		} else if (ctx.ID() != null && ctx.PAR_IZQ() != null && ctx.PAR_DER() != null) {
+			System.out.println("definir Caso expr,expr");
+		}
+		// negacion
+		else if (ctx.NEGACION() != null && ctx.expr(0) != null) {
+			Objeto obj = buscar(ctx.ID().toString());
+			String bool;
+			if (getTipo(obj) != 4) {
+				// SEMANTICO
+				error = "Negacion se usa para cambiar el estado de variables logicas";
+				error();
+			} else if (obj.getObjeto().equals("verdadero")) {
+				bool = "falso";
+				return (T) bool;
+			} else if (obj.getObjeto().equals("falso")) {
+				bool = "verdadero";
+				return (T) bool;
+			}
+		}
+
+		System.out.println("Estado no definido");
+		return null;
+	}
+
+	@Override
+	public T visitBooleanExpr(MyLanguageParser.BooleanExprContext ctx) {
 		return visitChildren(ctx);
 	}
 

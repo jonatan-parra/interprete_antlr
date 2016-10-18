@@ -1,9 +1,9 @@
 proceso mi_proceso
-   deFinir A1,b1,c1,d1,e1 como entero;
-   a1 <- 5*2.2;
-   e1 <- 34*4;
-   b1 <- verdadero;
+   deFinir A1,b1,c1,d1,e1 como logico;
+   e1 <- verdadero;
+   a1 <- falso;
+   b1 <- a1 o e1;
    b1 <- falso;
 
-   Escribir aal,b1,c1;
+   Escribir a1,b1,c1;
 finproceso
