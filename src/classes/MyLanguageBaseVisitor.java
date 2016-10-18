@@ -3,6 +3,8 @@ package classes;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import classes.MyLanguageParser.Varios_idContext;
+
 /**
  * This class provides an empty implementation of {@link MyLanguageVisitor},
  * which can be extended to create a visitor which only needs to handle a subset
@@ -61,8 +63,6 @@ public class MyLanguageBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitVarios_id(MyLanguageParser.Varios_idContext ctx) { return visitChildren(ctx); }
-	
-	@Override public T visitVarios_id(MyLanguageParser.Varios_idContext ctx, TerminalNode var) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -154,4 +154,9 @@ public class MyLanguageBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitCiclo_repetir(MyLanguageParser.Ciclo_repetirContext ctx) { return visitChildren(ctx); }
+	public T visitVarios_id(Varios_idContext ctx, TerminalNode var) {
+		// TODO Auto-generated method stub
+		//return null;
+		return visitChildren(ctx);
+	}
 }

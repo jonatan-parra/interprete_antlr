@@ -89,7 +89,7 @@ expr 		:   expr MULOP expr
 		    |	expr MODOP expr
 		    |	expr MODULO expr
 		   // |   expr ('&'|'|'| Y | O) expr //Corregir
-		    |   expr (AND_OP | OR_OP)
+		    |   expr (AND_OP | OR_OP) expr
 		    |	REAL
 		    |   ENTERO
 		    |   VERDADERO

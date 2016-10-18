@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class Interpreter {
 
 	public static void main(String[] args) throws Exception {
-		int can_numeros = 1;
+		int can_numeros = 2;
 		//for (can_numeros = 1; can_numeros <= 5; can_numeros++){
 			String letter = "A";
 			String name = "L_P2_"+ letter+ can_numeros + ".in";
@@ -50,7 +50,7 @@ public class Interpreter {
 	
 			System.out.println("Ejercicio numero " + letter + can_numeros+
 					" El analisis sintactico ha finalizado exitosamente... Quitar esta frase");
-		//}
+	//	}
 
 	}
 }

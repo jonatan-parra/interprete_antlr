@@ -1,9 +1,6 @@
 // Generated from MyLanguage.g by ANTLR 4.5.3
 package classes;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
-import classes.MyLanguageParser.Varios_idContext;
 
 /**
  * This interface defines a complete generic visitor for a parse tree produced
@@ -133,5 +130,4 @@ public interface MyLanguageVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCiclo_repetir(MyLanguageParser.Ciclo_repetirContext ctx);
-	T visitVarios_id(Varios_idContext ctx, TerminalNode var);
 }
