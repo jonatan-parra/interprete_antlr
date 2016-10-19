@@ -644,10 +644,12 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			String s = ctx.MENSAJE().toString() + "," + visitContenido_escribir(ctx.contenido_escribir()).toString();
 			return (T) s;
 		} else if (ctx.expr() != null && ctx.COMMA() != null && ctx.contenido_escribir() != null) {
+			
 			T visit1 = visitExpr(ctx.expr());
 			String s = visit1.toString() + "," + visitContenido_escribir(ctx.contenido_escribir());
 			return (T) s;
 		} else if (ctx.MENSAJE() != null && ctx.expr() == null) {
+			
 			if (ctx.contenido_escribir() == null) {
 				String s = ctx.MENSAJE().getText();
 				return (T) s;
@@ -657,6 +659,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			}
 
 		} else {
+			
 			if (ctx.contenido_escribir() == null) {
 				T visit1 = visitExpr(ctx.expr());
 				String s = visit1.toString();
@@ -668,7 +671,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				return (T) s;
 			}
 		}
-
+		
 		// contenido_escribir : MENSAJE (contenido_escribir)?
 		// | MENSAJE COMMA contenido_escribir
 		// | expr (contenido_escribir)?
@@ -687,7 +690,8 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		} else if (ctx.contenido_escribir() != null) {
 			System.out.println(visitContenido_escribir(ctx.contenido_escribir()).toString());
 		} else {
-			T visit1 = posicionArray(visitExpr(ctx.expr()));
+			
+			T visit1 = visitExpr(ctx.expr());
 			String s = visit1.toString();
 			System.out.println(s);
 		}
