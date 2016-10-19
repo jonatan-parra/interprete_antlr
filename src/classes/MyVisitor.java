@@ -5,7 +5,10 @@
  */
 package classes;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang.math.NumberUtils;
@@ -38,6 +41,36 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		table.add(new Objeto(id, tipo));
 	}
 
+	public T posicionArray(T array) {
+		Objeto obj2 = new Objeto("b2[2]", "entero");
+		obj2.setObjeto("2");
+		table.add(obj2);
+
+		String lista = array.toString();
+		lista = lista.replace("[", "");
+		lista = lista.replace("]", "");
+		lista = lista.replace(" ", "");
+		ArrayList<String> list = new ArrayList<String>(Arrays.asList(lista.split(",")));
+		if (list.size() < 2)
+			return array;
+		String ret = list.get(0) + "[";
+		for (int i = 1; i < list.size(); i++) {
+			ret += list.get(i);
+			if (i < (list.size() - 1))
+				ret += ",";
+		}
+		ret += "]";
+		Objeto obj = isDefined(ret);
+		if (obj == null) {
+			return array;
+		} else if (obj.getObjeto() == null) {
+			error = "la variable" + obj.getId() + "no ha sido inicializada";
+			error();
+		}
+
+		return (T) obj.getObjeto();
+	}
+
 	public Objeto buscar(String id) {
 		for (Objeto objeto : table) {
 			if (objeto.getId().equals(id)) {
@@ -56,9 +89,10 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		}
 		return obj;
 	}
-	public String isInicialized(Objeto obj){
+
+	public String isInicialized(Objeto obj) {
 		String s = obj.getObjeto();
-		if(s==null){
+		if (s == null) {
 			error = "Error, variable: " + obj.getId() + " no inicializada.";
 			error();
 		}
@@ -92,6 +126,13 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		}
 	}
 
+	public boolean isNum(String a) {
+		if (NumberUtils.isNumber(a)) {
+			return true;
+		}
+		return false;
+	}
+
 	public boolean isInt(Double variable) {
 		if ((variable == Math.floor(variable)) && !Double.isInfinite(variable)) {
 			return true;
@@ -112,13 +153,18 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 
 	@Override
 	public T visitVarios_id(MyLanguageParser.Varios_idContext ctx, TerminalNode var) {
+		if (ctx.ID() != null && var != null) {
 
-		if (ctx.varios_id() == null) {
-			guardar(ctx.ID().toString(), var.toString());
-			return null;
+			if (ctx.varios_id() == null) {
+				guardar(ctx.ID().toString(), var.toString());
+				return (T) new Integer(0);
+			} else {
+				guardar(ctx.ID().toString(), var.toString());
+				return (T) visitVarios_id(ctx.varios_id(), var);
+			}
 		} else {
-			guardar(ctx.ID().toString(), var.toString());
-			return (T) visitVarios_id(ctx.varios_id(), var);
+			error = "Error Sintactico";
+			return (T) new Integer(0);
 		}
 
 	}
@@ -146,15 +192,17 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		// Camino 2 asigna expr
 		else if (ctx.expr(1) == null && ctx.contenido_escribir() == null && ctx.expr(0) != null) {
 			Objeto obj = isDefined(ctx.ID(0).toString());
-			T tipo = visitExpr(ctx.expr(0));
+			T tipo1 = visitExpr(ctx.expr(0));
+			T tipo = posicionArray(tipo1);
 			if (tipo != null) {
-				boolean isNumber = NumberUtils.isNumber(tipo.toString());
 
+				boolean isNumber = NumberUtils.isNumber(tipo.toString());
 				if (getTipo(obj) == 1) {
 					if (isNumber) {
 						Double number = Double.valueOf(tipo.toString());
 						if (isInt(number)) {
-							obj.setObjeto(number + "");
+							Integer value = Integer.valueOf(tipo.toString());
+							obj.setObjeto(value + "");
 						} else {
 							error = "se esperaba un entero";
 							error();
@@ -167,7 +215,9 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				} else if (getTipo(obj) == 2) {
 					if (isNumber) {
 						Double number = Double.valueOf(tipo.toString());
-						obj.setObjeto(number + "");
+
+						String asd = isInt(number) ? Integer.valueOf(tipo.toString()).toString() : number.toString();
+						obj.setObjeto(asd + "");
 					} else {
 						error = "se esperaba un numero";
 						error();
@@ -190,37 +240,28 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				error();
 			}
 		}
-		// camino 3 arreglos
+		// camino 3 arreglos REWVISAR aslkjdqhiwi
 		else if (ctx.expr(1) != null || ctx.contenido_escribir() != null) {
 			T tipo = visitExpr(ctx.expr(0));
-			boolean isNumber = NumberUtils.isNumber(tipo.toString());
-			Double number = Double.valueOf(tipo.toString());
-			if (!isNumber) {
-				error = "<linea:col> Error en tiempo de ejecucion: se accedio a una posicion no valida del arreglo: "
-						+ tipo;
-				error();
-				;
-			} else {
-				if (!isInt(number)) {
-					error = "<linea:col> Error en tiempo de ejecucion: se accedio a una posicion no valida del arreglo: "
-							+ number;
-					error();
-				} else {
-					String id = ctx.ID().toString() + "[" + tipo + "]";
-					Objeto obj = buscar(id);
-					if (obj != null) {
-						if (ctx.expr(1) != null) {
-							obj.setObjeto(visitExpr(ctx.expr(1)).toString());
-						} else {
-							obj.setObjeto(visitContenido_escribir(ctx.contenido_escribir()).toString());
-						}
-					} else {
-						error = "Variable no definida " + id;
-						error();
-					}
-				}
 
+			// ArrayList<String> arreglo = (ArrayList<String>) tipo;
+			String ctxid = ctx.ID().toString().substring(1, ctx.ID().toString().length() - 1);
+			String valores = tipo.toString().replace(" ", "");
+			String id = ctxid + valores;
+			Objeto obj = buscar(id);
+			if (obj != null) {
+				if (ctx.expr(1) != null) {
+					T tipo1 = visitExpr(ctx.expr(1));
+					T tipo3 = posicionArray(tipo1);
+					obj.setObjeto(tipo3.toString());
+				} else {
+					obj.setObjeto(visitContenido_escribir(ctx.contenido_escribir()).toString());
+				}
+			} else {
+				error = "Variable no definida " + id;
+				error();
 			}
+
 		}
 		// camino 4 cadenas
 		else if (ctx.MENSAJE() != null) {
@@ -257,16 +298,25 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 	public T visitExpr(MyLanguageParser.ExprContext ctx) {
 		// Multipliación/división
 		if (ctx.expr(0) != null && ctx.MULOP() != null && ctx.expr(1) != null) {
-			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
-			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
+			T visit2 = posicionArray(visitExpr(ctx.expr(1)));
+			Double a = Double.valueOf(visit1.toString());
+			Double b = Double.valueOf(visit2.toString());
 			if (ctx.MULOP().toString().equals("*")) {
 				Double c;
 				c = a * b;
-
+				if (isInt(c)) {
+					Integer d = c.intValue();
+					return (T) d;
+				}
 				return (T) c;
 			} else if (ctx.MULOP().toString().equals("/")) {
 				Double c;
 				c = a * b;
+				if (isInt(c)) {
+					Integer d = c.intValue();
+					return (T) d;
+				}
 				return (T) c;
 			}
 		}
@@ -288,7 +338,9 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		}
 		// +/- expr
 		else if (ctx.SUMOP() != null && ctx.expr(0) != null && ctx.expr(1) == null) {
-			T tipo = visitExpr(ctx.expr(0));
+			T tipo1 = visitExpr(ctx.expr(0));
+			T tipo = posicionArray(visitExpr(ctx.expr(0)));
+
 			boolean isNumber = NumberUtils.isNumber(tipo.toString());
 			if (isNumber) {
 				if (ctx.SUMOP().toString().equals("+")) {
@@ -301,78 +353,95 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			}
 
 		}
-		// Matriz a <- b[a][][] etc
+		// b[a][][] etc REVCISASUDJWQ
 		else if (ctx.ID() != null && ctx.COR_IZQ() != null && ctx.expr(0) != null && ctx.COR_DER() != null) {
 			T tipo = visitExpr(ctx.expr(0));
-			boolean isNumber = NumberUtils.isNumber(tipo.toString());
-			if (isNumber) {
-				Double number = Double.valueOf(tipo.toString());
-				if (isInt(number)) {
-					String id = ctx.ID().toString() + "[" + tipo + "]";
-					Objeto obj = buscar(id);
-					if (obj != null) {
-						String valor = obj.getObjeto();
-						return (T) valor;
-					} else {
-						error = "Variable no definida " + id;
-						error();
-					}
-				
-
-				} else {
-					error = "se esperaba un entero timeout";
+			String lista = tipo.toString();
+			lista = lista.replace("[", "");
+			lista = lista.replace("]", "");
+			lista = lista.replace(" ", "");
+			ArrayList<String> list = new ArrayList<String>(Arrays.asList(lista.split(",")));
+			for (String string : list) {
+				if (!isNum(string)) {
+					error = "<linea:col> Error en tiempo de ejecucion: se accedio a una posicion no valida del arreglo: "
+							+ string;
 					error();
-				}
-			} else {
-				error = "se esperaba un entero timoeut";
-				error();
 
+				}
 			}
+			ArrayList<String> idList = new ArrayList<>();
+			idList.add(ctx.ID().toString());
+			for (String string : list) {
+				idList.add(string);
+			}
+
+			return (T) idList;
+
 		}
-		// caso?? [expr]
+		// [expr]
 		else if (ctx.COR_IZQ() != null && ctx.expr(0) != null && ctx.COR_DER() != null) {
-			System.out.println("definir Caso [expr]");
+			T tipo = visitExpr(ctx.expr(0));
+			String s = tipo + "";
+			return (T) s;
 		}
 		// SUMA
 		else if (ctx.expr(0) != null && ctx.SUMOP() != null && ctx.expr(1) != null) {
-			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
-			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
+			T visit2 = posicionArray(visitExpr(ctx.expr(1)));
+			Double a = Double.valueOf(visit1.toString());
+			Double b = Double.valueOf(visit2.toString());
 			if (ctx.SUMOP().toString().equals("+")) {
 				Double c;
 				c = a + b;
+				if (isInt(c)) {
+					Integer d = c.intValue();
+					return (T) d;
+				}
 				return (T) c;
 			} else if (ctx.SUMOP().toString().equals("-")) {
 				Double c;
 				c = a - b;
+				if (isInt(c)) {
+					Integer d = c.intValue();
+					return (T) d;
+				}
 				return (T) c;
 			}
 		}
 		// pow
 		else if (ctx.expr(0) != null && ctx.POTENCIA() != null && ctx.expr(1) != null) {
-			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
-			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
+			T visit2 = posicionArray(visitExpr(ctx.expr(1)));
+			Double a = Double.valueOf(visit1.toString());
+			Double b = Double.valueOf(visit2.toString());
 			Double c = Math.pow(a, b);
 			return (T) c;
 		}
 		// modulo %
 		else if (ctx.expr(0) != null && ctx.MODOP() != null && ctx.expr(1) != null) {
-			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
-			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
+			T visit2 = posicionArray(visitExpr(ctx.expr(1)));
+			Double a = Double.valueOf(visit1.toString());
+			Double b = Double.valueOf(visit2.toString());
 			Double c = a % b;
 			return (T) c;
 
 		}
 		// modulo mod
 		else if (ctx.expr(0) != null && ctx.MODULO() != null && ctx.expr(1) != null) {
-			Double a = Double.valueOf(visitExpr(ctx.expr(0)).toString());
-			Double b = Double.valueOf(visitExpr(ctx.expr(1)).toString());
+			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
+			T visit2 = posicionArray(visitExpr(ctx.expr(1)));
+			Double a = Double.valueOf(visit1.toString());
+			Double b = Double.valueOf(visit2.toString());
 			Double c = a % b;
 			return (T) c;
 		}
 		// Case Y/O
 		else if (ctx.expr(0) != null && (ctx.AND_OP() != null || ctx.OR_OP() != null) && ctx.expr(1) != null) {
-			String a = visitExpr(ctx.expr(0)).toString();
-			String b = visitExpr(ctx.expr(1)).toString();
+			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
+			T visit2 = posicionArray(visitExpr(ctx.expr(1)));
+			String a = visit1.toString();
+			String b = visit2.toString();
 			if (!(a.equals("verdadero") || a.equals("falso"))) {
 				error = "Se esperaba un valor logico, en cambio llego" + a;
 				error();
@@ -401,6 +470,10 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		// real
 		else if (ctx.REAL() != null) {
 			Double a = Double.valueOf(ctx.REAL().toString());
+			if (isInt(a)) {
+				Integer d = a.intValue();
+				return (T) d;
+			}
 			return (T) a;
 		}
 		// entero
@@ -424,9 +497,10 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			return (T) rop;
 
 		}
-		// caso?? ID, expr
+		// ID, expr
 		else if (ctx.ID() != null && ctx.COMMA() != null && ctx.expr(0) != null) {
 			Objeto obj = isDefined(ctx.ID().toString());
+			//T visit1 = posicionArray(visitExpr(ctx.expr(0)));
 			String s = obj.getObjeto() + ", " + visitExpr(ctx.expr(0)).toString();
 			return (T) s;
 		}
@@ -438,30 +512,39 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		}
 		// (expr)
 		else if (ctx.PAR_DER() != null && ctx.expr(0) != null && ctx.PAR_DER() != null) {
-			return visitExpr(ctx.expr(0));
+			return posicionArray(visitExpr(ctx.expr(0)));
 		}
-		// function f(expr)
+		// function f(expr)??
 		else if (ctx.ID() != null && ctx.PAR_DER() != null && ctx.expr(0) != null && ctx.PAR_DER() != null) {
 			System.out.println("definir Caso funcion(expr)");
 		}
-		// caso?? ID, expr
+		// expr, expr
 		else if (ctx.expr(0) != null && ctx.COMMA() != null && ctx.expr(1) != null) {
-			// caso expr,expr
-		} else if (ctx.ID() != null && ctx.PAR_IZQ() != null && ctx.PAR_DER() != null) {
-			System.out.println("definir Caso expr,expr");
+			ArrayList<T> a = new ArrayList<T>();
+			T visit1 = visitExpr(ctx.expr(0));
+			T visit2 = visitExpr(ctx.expr(1));
+			String izq = visit1.toString();
+			String der = visit2.toString();
+			a.add((T) izq);
+			a.add((T) der);
+			return (T) a;
+		}
+		// f()??
+		else if (ctx.ID() != null && ctx.PAR_IZQ() != null && ctx.PAR_DER() != null) {
+			System.out.println("definir Caso f()");
 		}
 		// negacion
 		else if (ctx.NEGACION() != null && ctx.expr(0) != null) {
-			Objeto obj = buscar(ctx.ID().toString());
+			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
 			String bool;
-			if (getTipo(obj) != 4) {
+			if (visit1.toString()!="verdadero" || visit1.toString()!="falso") {
 				// SEMANTICO
 				error = "Negacion se usa para cambiar el estado de variables logicas";
 				error();
-			} else if (obj.getObjeto().equals("verdadero")) {
+			} else if (visit1.toString().equals("verdadero")) {
 				bool = "falso";
 				return (T) bool;
-			} else if (obj.getObjeto().equals("falso")) {
+			} else if (visit1.toString().equals("falso")) {
 				bool = "verdadero";
 				return (T) bool;
 			}
@@ -474,12 +557,14 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 	public T visitBooleanExpr(MyLanguageParser.BooleanExprContext ctx) {
 
 		if (ctx.booleanExpr() == null) {
-			return visitExpr(ctx.expr());
+			T visit1 = posicionArray(visitExpr(ctx.expr()));
+			return visit1;
 		} else {
+			T visit1 = posicionArray(visitExpr(ctx.expr()));
 			String rop = ctx.ROP().toString();
 			switch (rop) {
 			case "=":
-				Double a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				Double a = Double.valueOf(visit1.toString());
 				Double b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
 				if (a == b) {
 					return (T) "verdadero";
@@ -487,7 +572,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 					return (T) "falso";
 				}
 			case "<>":
-				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				a = Double.valueOf(visit1.toString());
 				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
 				if (a != b) {
 					return (T) "verdadero";
@@ -495,7 +580,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 					return (T) "falso";
 				}
 			case "<":
-				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				a = Double.valueOf(visit1.toString());
 				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
 				if (a < b) {
 					return (T) "verdadero";
@@ -503,7 +588,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 					return (T) "falso";
 				}
 			case ">":
-				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				a = Double.valueOf(visit1.toString());
 				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
 				if (a > b) {
 					return (T) "verdadero";
@@ -511,7 +596,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 					return (T) "falso";
 				}
 			case "<=":
-				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				a = Double.valueOf(visit1.toString());
 				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
 				if (a <= b) {
 					return (T) "verdadero";
@@ -519,7 +604,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 					return (T) "falso";
 				}
 			case ">=":
-				a = Double.valueOf(visitExpr(ctx.expr()).toString());
+				a = Double.valueOf(visit1.toString());
 				b = Double.valueOf(visitBooleanExpr(ctx.booleanExpr()).toString());
 				if (a >= b) {
 					return (T) "verdadero";
@@ -527,7 +612,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 					return (T) "falso";
 				}
 			case "&":
-				String aa = visitExpr(ctx.expr()).toString();
+				String aa = visit1.toString();
 				String bb = visitBooleanExpr(ctx.booleanExpr()).toString();
 				if (aa.equals("verdadero") && bb.equals("verdadero")) {
 					return (T) "verdadero";
@@ -536,7 +621,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 				}
 
 			case "|":
-				aa = visitExpr(ctx.expr()).toString();
+				aa = visit1.toString().toString();
 				bb = visitBooleanExpr(ctx.booleanExpr()).toString();
 				if (aa.equals("verdadero") || bb.equals("verdadero")) {
 					return (T) "verdadero";
@@ -553,66 +638,70 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 
 	@Override
 	public T visitContenido_escribir(MyLanguageParser.Contenido_escribirContext ctx) {
-		
-		
-		if(ctx.MENSAJE()!=null && ctx.COMMA()!=null && ctx.contenido_escribir()!=null){
+
+		if (ctx.MENSAJE() != null && ctx.COMMA() != null && ctx.contenido_escribir() != null) {
+			
 			String s = ctx.MENSAJE().toString() + "," + visitContenido_escribir(ctx.contenido_escribir()).toString();
 			return (T) s;
-		}
-		else if(ctx.expr()!=null && ctx.COMMA()!=null && ctx.contenido_escribir()!=null){
-			String s = visitExpr(ctx.expr()).toString() + "," + visitContenido_escribir(ctx.contenido_escribir());
+		} else if (ctx.expr() != null && ctx.COMMA() != null && ctx.contenido_escribir() != null) {
+			T visit1 = visitExpr(ctx.expr());
+			String s = visit1.toString() + "," + visitContenido_escribir(ctx.contenido_escribir());
 			return (T) s;
-		}
-		else if(ctx.MENSAJE()!=null && ctx.expr()==null){
-			if(ctx.contenido_escribir()==null){
+		} else if (ctx.MENSAJE() != null && ctx.expr() == null) {
+			if (ctx.contenido_escribir() == null) {
 				String s = ctx.MENSAJE().getText();
 				return (T) s;
-			}
-			else{
+			} else {
 				String s = ctx.MENSAJE().getText() + visitContenido_escribir(ctx.contenido_escribir()).toString();
 				return (T) s;
 			}
-			
-		}
-		else{
-			if(ctx.contenido_escribir()==null){
-				String s = visitExpr(ctx.expr()).toString();
+
+		} else {
+			if (ctx.contenido_escribir() == null) {
+				T visit1 = visitExpr(ctx.expr());
+				String s = visit1.toString();
+				return (T) s;
+			} else {
+				T visit1 = visitExpr(ctx.expr());
+				String s = visit1.toString()
+						+ visitContenido_escribir(ctx.contenido_escribir()).toString();
 				return (T) s;
 			}
-			else{
-				String s = visitExpr(ctx.expr()).toString() + visitContenido_escribir(ctx.contenido_escribir()).toString();
-				return (T) s;
-			}
 		}
-		
-		
-//		contenido_escribir : MENSAJE (contenido_escribir)?
-//				| MENSAJE COMMA contenido_escribir
-//				| expr (contenido_escribir)?
-//				| expr COMMA contenido_escribir
-//				;	
-	
+
+		// contenido_escribir : MENSAJE (contenido_escribir)?
+		// | MENSAJE COMMA contenido_escribir
+		// | expr (contenido_escribir)?
+		// | expr COMMA contenido_escribir
+		// ;
+
 	}
 
 	@Override
 	public T visitEscribir(MyLanguageParser.EscribirContext ctx) {
-		
-		if(ctx.ID()!=null){
+
+		if (ctx.ID() != null) {
 			Objeto obj = isDefined(ctx.ID().toString());
 			System.out.println(obj.getObjeto() + visitExpr(ctx.expr()));
 			return null;
-		}
-		else if(ctx.contenido_escribir()!=null){
+		} else if (ctx.contenido_escribir() != null) {
 			System.out.println(visitContenido_escribir(ctx.contenido_escribir()).toString());
-		}
-		else{
-			String s = visitExpr(ctx.expr()).toString();
+		} else {
+			T visit1 = posicionArray(visitExpr(ctx.expr()));
+			String s = visit1.toString();
 			System.out.println(s);
 		}
 		return null;
-//		escribir	: ESCRIBIR expr SMCOLON
-//		| ESCRIBIR ID expr SMCOLON
-//		| ESCRIBIR contenido_escribir SMCOLON
+		// escribir : ESCRIBIR expr SMCOLON
+		// | ESCRIBIR ID expr SMCOLON
+		// | ESCRIBIR contenido_escribir SMCOLON
+	}
+
+	@Override
+	public T visitDef_arreglo(MyLanguageParser.Def_arregloContext ctx) {
+
+		//System.out.println(visitExpr(ctx.expr()));
+		return visitChildren(ctx);
 	}
 	/*
 	 * @Override public T visitExpr(ExprContext ctx) { if (ctx.DOUBLE() != null)

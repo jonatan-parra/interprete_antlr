@@ -1,6 +1,14 @@
 proceso mi_proceso
+	definir b1 como entero;
     definir m1 como real;
-    dimension m1 [10, b1, m1, 4]; //Un arreglo de 4 dimensiones
+
+    b1 <- 3;
+    escribir b1;
+    b1 <- b2[2];
+    escribir b1;
+    m1 <- 2;
+    escribir m1;
+    dimension e1[10, 6, 7, 4]; //Un arreglo de 4 dimensiones
     Escribir m1[0,0,0,0];
     Leer m1[1,0,0,0];
     Escribir m1[0,0,0,0] * m1[1,0,0,0];
