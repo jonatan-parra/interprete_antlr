@@ -717,23 +717,27 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			cuantos.add(size/Integer.valueOf(lista.get(i)));
 		}
 		
-		ArrayList<String> add = (ArrayList<String>) visit;
+		
+		ArrayList<String> add = new ArrayList<>();
 		for(int i=0;i<size;i++){
-			add.add(lista.get(0));
+			add.add(lista.get(0) + "[");
 		}
-
 		int count=0;
-		for(int i=0;i<cuantos.size();i++){
-			
-			for(int j=0;j<cuantos.get(i);j++){
-				add.get(count).concat(j + " ");
+		int var=0;
+		for(int i=1;i<lista.size();i++){
+			for(int j=0;j<size;j++){
+				int mod = Integer.valueOf(lista.get(i));
+				int tan = size/mod;
+				int pos = ((count%tan)+var)%size;
+				add.set(pos, add.get(pos).concat(j%mod+" "));
 				count++;
+				
 			}
-			
+			count=0;
+			var++;
 		}
 		
 
-		
 
 		return visitChildren(ctx);
 	}
