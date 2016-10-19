@@ -64,7 +64,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		if (obj == null) {
 			return array;
 		} else if (obj.getObjeto() == null) {
-			error = "la variable" + obj.getId() + "no ha sido inicializada";
+			error = "la variable " + obj.getId() + " no ha sido inicializada";
 			error();
 		}
 
@@ -500,7 +500,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		// ID, expr
 		else if (ctx.ID() != null && ctx.COMMA() != null && ctx.expr(0) != null) {
 			Objeto obj = isDefined(ctx.ID().toString());
-			//T visit1 = posicionArray(visitExpr(ctx.expr(0)));
+			// T visit1 = posicionArray(visitExpr(ctx.expr(0)));
 			String s = obj.getObjeto() + ", " + visitExpr(ctx.expr(0)).toString();
 			return (T) s;
 		}
@@ -537,7 +537,7 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		else if (ctx.NEGACION() != null && ctx.expr(0) != null) {
 			T visit1 = posicionArray(visitExpr(ctx.expr(0)));
 			String bool;
-			if (visit1.toString()!="verdadero" || visit1.toString()!="falso") {
+			if (visit1.toString() != "verdadero" || visit1.toString() != "falso") {
 				// SEMANTICO
 				error = "Negacion se usa para cambiar el estado de variables logicas";
 				error();
@@ -640,16 +640,16 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 	public T visitContenido_escribir(MyLanguageParser.Contenido_escribirContext ctx) {
 
 		if (ctx.MENSAJE() != null && ctx.COMMA() != null && ctx.contenido_escribir() != null) {
-			
+
 			String s = ctx.MENSAJE().toString() + "," + visitContenido_escribir(ctx.contenido_escribir()).toString();
 			return (T) s;
 		} else if (ctx.expr() != null && ctx.COMMA() != null && ctx.contenido_escribir() != null) {
-			
+
 			T visit1 = visitExpr(ctx.expr());
 			String s = visit1.toString() + "," + visitContenido_escribir(ctx.contenido_escribir());
 			return (T) s;
 		} else if (ctx.MENSAJE() != null && ctx.expr() == null) {
-			
+
 			if (ctx.contenido_escribir() == null) {
 				String s = ctx.MENSAJE().getText();
 				return (T) s;
@@ -659,19 +659,18 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			}
 
 		} else {
-			
+
 			if (ctx.contenido_escribir() == null) {
 				T visit1 = visitExpr(ctx.expr());
 				String s = visit1.toString();
 				return (T) s;
 			} else {
 				T visit1 = visitExpr(ctx.expr());
-				String s = visit1.toString()
-						+ visitContenido_escribir(ctx.contenido_escribir()).toString();
+				String s = visit1.toString() + visitContenido_escribir(ctx.contenido_escribir()).toString();
 				return (T) s;
 			}
 		}
-		
+
 		// contenido_escribir : MENSAJE (contenido_escribir)?
 		// | MENSAJE COMMA contenido_escribir
 		// | expr (contenido_escribir)?
@@ -691,8 +690,9 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 			System.out.println(visitContenido_escribir(ctx.contenido_escribir()).toString());
 		} else {
 			T visit1 = visitExpr(ctx.expr());
-			if(visit1.toString().contains("[")) visit1 = posicionArray(visit1);
-			
+			if (visit1.toString().contains("["))
+				visit1 = posicionArray(visit1);
+
 			String s = visit1.toString();
 			System.out.println(s);
 		}
@@ -705,43 +705,53 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 	@Override
 	public T visitDef_arreglo(MyLanguageParser.Def_arregloContext ctx) {
 
-
 		T visit = visitExpr(ctx.expr());
 		ArrayList<String> lista = (ArrayList<String>) visit;
 		ArrayList<Integer> cuantos = new ArrayList<>();
-		int size=1;
-		for(int i =1;i<lista.size();i++){
+		int size = 1;
+		for (int i = 1; i < lista.size(); i++) {
 			size *= Integer.valueOf(lista.get(i));
 		}
-		for(int i =1;i<lista.size();i++){
-			cuantos.add(size/Integer.valueOf(lista.get(i)));
+		for (int i = 1; i < lista.size(); i++) {
+			cuantos.add(size / Integer.valueOf(lista.get(i)));
 		}
-		
-		
+
 		ArrayList<String> add = new ArrayList<>();
-		for(int i=0;i<size;i++){
+		for (int i = 0; i < size; i++) {
 			add.add(lista.get(0) + "[");
 		}
-		int count=0;
-		int var=0;
-		for(int i=1;i<lista.size();i++){
-			for(int j=0;j<size;j++){
-				int mod = Integer.valueOf(lista.get(i));
-				int tan = size/mod;
-				int pos = ((count%tan)+var)%size;
-				add.set(pos, add.get(pos).concat(j%mod+" "));
-				count++;
-				
-			}
-			count=0;
-			var++;
+
+		for (int i = 1; i < lista.size(); i++) {
+			add = dimensiones(size, Integer.valueOf(lista.get(i)), add);
 		}
-		
 
+		for (int i = 0; i < size; i++) {
+			add.set(i, add.get(i).substring(0, add.get(i).length() - 1));
+			add.set(i, add.get(i).concat("]"));
+		}
 
+		for (String string : add) {
+			guardar(string, lista.get(0));
+		}
 		return visitChildren(ctx);
 	}
-	
+
+	public static int turn = 0;
+
+	public ArrayList<String> dimensiones(int size, int cuantos, ArrayList<String> lista) {
+		int cuanto = size / cuantos;
+		int count = 0;
+		for (int i = 0; i < cuantos; i++) {
+			for (int j = 0; j < cuanto; j++) {
+				int pos = (count + turn) % size;
+				lista.set(pos, lista.get(pos).concat(i + ","));
+				count++;
+			}
+
+		}
+		turn += 1;
+		return lista;
+	}
 
 	/*
 	 * @Override public T visitExpr(ExprContext ctx) { if (ctx.DOUBLE() != null)

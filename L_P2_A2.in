@@ -8,8 +8,8 @@ proceso mi_proceso
     escribir b1;
     m1 <- 2;
     escribir m1;
-    dimension e1[2, 2, 2]; //Un arreglo de 4 dimensiones
-    Escribir m1[0,0,2,0];
+    dimension m1[2, 2, 3,2]; //Un arreglo de 4 dimensiones
+    Escribir m1[0,0,2,1];
     Leer m1[1,0,0,0];
     Escribir m1[0,0,0,0] * m1[1,0,0,0];
 finproceso
