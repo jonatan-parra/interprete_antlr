@@ -690,8 +690,9 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 		} else if (ctx.contenido_escribir() != null) {
 			System.out.println(visitContenido_escribir(ctx.contenido_escribir()).toString());
 		} else {
-			
 			T visit1 = visitExpr(ctx.expr());
+			if(visit1.toString().contains("[")) visit1 = posicionArray(visit1);
+			
 			String s = visit1.toString();
 			System.out.println(s);
 		}
@@ -704,9 +705,40 @@ public class MyVisitor<T> extends MyLanguageBaseVisitor<T> {
 	@Override
 	public T visitDef_arreglo(MyLanguageParser.Def_arregloContext ctx) {
 
-		//System.out.println(visitExpr(ctx.expr()));
+
+		T visit = visitExpr(ctx.expr());
+		ArrayList<String> lista = (ArrayList<String>) visit;
+		ArrayList<Integer> cuantos = new ArrayList<>();
+		int size=1;
+		for(int i =1;i<lista.size();i++){
+			size *= Integer.valueOf(lista.get(i));
+		}
+		for(int i =1;i<lista.size();i++){
+			cuantos.add(size/Integer.valueOf(lista.get(i)));
+		}
+		
+		ArrayList<String> add = (ArrayList<String>) visit;
+		for(int i=0;i<size;i++){
+			add.add(lista.get(0));
+		}
+
+		int count=0;
+		for(int i=0;i<cuantos.size();i++){
+			
+			for(int j=0;j<cuantos.get(i);j++){
+				add.get(count).concat(j + " ");
+				count++;
+			}
+			
+		}
+		
+
+		
+
 		return visitChildren(ctx);
 	}
+	
+
 	/*
 	 * @Override public T visitExpr(ExprContext ctx) { if (ctx.DOUBLE() != null)
 	 * { Double num = new Double(ctx.DOUBLE().getText()); //
